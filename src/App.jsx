@@ -4,8 +4,9 @@ import Home from './pages/home/Home';
 import About from './pages/about/About';
 import Services from './pages/services/Services';
 import Tickets from './pages/tickets/Tickets';
+import Wifi from './pages/wifi/Wifi';
 
-function App() {
+const App = () => {
   return (
     <>
       <Router>
@@ -19,6 +20,7 @@ function App() {
             <Route path="about" element={<About />} />
             <Route path="services" element={<Services />} />
             <Route path="tickets" element={<Tickets />} />
+            <Route path="/wifi" element={<Wifi />} />
           </Routes>
 
           {/* Footer */}

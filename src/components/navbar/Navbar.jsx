@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { FaBars, FaTimes, FaWifi, FaUser, FaHome, FaBus, FaInfoCircle, FaHandsHelping } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 
-function Navbar() {
+const Navbar = () =>{
   const [scrollPosition, setScrollPosition] = useState(0);
   const [isVisible, setIsVisible] = useState(true);
   const [open, setOpen] = useState(false);
@@ -73,7 +73,7 @@ function Navbar() {
       >
         <div className="w-full h-full flex items-center justify-between lg:px-24 md:px-16 sm:px-7 px-4">
           {/* Logo */}
-          <Link to="/" className="text-2xl md:text-3xl font-extrabold text-red-500 tracking-tight hover:scale-110 transition-transform">
+          <Link to="/" className="text-2xl md:text-3xl font-extrabold text-primary tracking-tight hover:scale-110 transition-transform">
             H.D.S. Travels
           </Link>
 
@@ -87,9 +87,9 @@ function Navbar() {
             <ul className="flex items-center gap-10 text-lg font-medium text-neutral-700">
               {navItems.map((item, ind) => (
                 <li key={ind}>
-                  <Link to={item.link} className="relative group hover:text-red-500 transition-colors duration-300">
+                  <Link to={item.link} className="relative group hover:text-primary transition-colors duration-300">
                     {item.label}
-                    <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-red-500 transition-all duration-300 group-hover:w-full"></span>
+                    <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-primary transition-all duration-300 group-hover:w-full"></span>
                   </Link>
                 </li>
               ))}
@@ -105,8 +105,8 @@ function Navbar() {
 
             {/* Sign In Button */}
             <Link to="/signin">
-              <button className="px-6 py-2 bg-red-500 text-white font-semibold rounded-full border border-red-500
-                flex items-center gap-2 hover:bg-transparent hover:text-red-500 hover:shadow-lg hover:scale-110 transition-all duration-300">
+              <button className="px-6 py-2 bg-primary text-white font-semibold rounded-full border border-primary 
+                flex items-center gap-2 hover:bg-transparent hover:text-primary hover:shadow-lg hover:scale-110 transition-all duration-300">
                 <FaUser /> Sign In
               </button>
             </Link>
@@ -119,7 +119,7 @@ function Navbar() {
         <div className="flex flex-col h-full p-6">
           {/* Header */}
           <div className="flex justify-between items-center mb-8">
-            <h2 className="text-2xl font-bold text-red-500">H.D.S Travels</h2>
+            <h2 className="text-2xl font-bold text-primary">H.D.S Travels</h2>
             <FaTimes className="w-6 h-6 cursor-pointer text-gray-600" onClick={handleClose} />
           </div>
 
@@ -127,8 +127,8 @@ function Navbar() {
           <ul className="flex flex-col gap-5 text-lg font-medium text-neutral-700">
             {navItems.map((item, ind) => (
               <li key={ind} className="flex items-center gap-4 p-3 rounded-xl bg-white/60 shadow-sm hover:shadow-md hover:bg-red-100 transition-all duration-300">
-                <span className="text-red-500">{item.icon}</span>
-                <button onClick={() => handleRedirect(item.link)} className="hover:text-red-500 text-left w-full">
+                <span className="text-primary">{item.icon}</span>
+                <button onClick={() => handleRedirect(item.link)} className="hover:text-primary text-left w-full">
                   {item.label}
                 </button>
               </li>
@@ -141,7 +141,7 @@ function Navbar() {
               flex items-center justify-center gap-2 hover:bg-transparent hover:text-green-500 hover:shadow-md transition-all duration-300">
               <FaWifi /> Free Wi-Fi
             </button>
-            <button onClick={() => handleRedirect("/signin")} className="w-full py-3 bg-red-500 text-white font-semibold rounded-full border border-red-500 flex items-center justify-center gap-2 hover:bg-transparent hover:text-red-500 hover:shadow-md transition-all duration-300">
+            <button onClick={() => handleRedirect("/signin")} className="w-full py-3 bg-primary text-white font-semibold rounded-full border border-primary flex items-center justify-center gap-2 hover:bg-transparent hover:text-primary hover:shadow-md transition-all duration-300">
               <FaUser /> Sign In
             </button>
           </div>

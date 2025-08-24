@@ -1,6 +1,6 @@
 import React from 'react'
 
-function About() {
+const About = () => {
   return (
     <div className='h-screen w-full flex items-center justify-center bg-neutral-950'>
       <h1 className="text-5xl text-neutral-50 font-bold">
