@@ -2,9 +2,13 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/navbar/Navbar';
 import Home from './pages/home/Home';
 import About from './pages/about/About';
-import Services from './pages/services/Services';
-import Tickets from './pages/tickets/Tickets';
+import Services from './pages/home/services/Services';
+import Ticket from './pages/ticket/Ticket';
 import Wifi from './pages/wifi/Wifi';
+import Signin from './pages/signin/Signin';
+import Footer from './components/footer/Footer';
+import Detail from './pages/ticket/detail/Detail';
+import Gallery from './pages/gallery/Gallery';
 
 const App = () => {
   return (
@@ -19,11 +23,17 @@ const App = () => {
             <Route path="/" element={<Home />} />
             <Route path="about" element={<About />} />
             <Route path="services" element={<Services />} />
-            <Route path="tickets" element={<Tickets />} />
+            <Route path="/bus-tickets" element={<Ticket />} />
+            <Route path="/gallery" element={<Gallery />} />
             <Route path="/wifi" element={<Wifi />} />
+            <Route path="/signin" element={<Signin />} />
+
+            {/* Ticket Detail Page */}
+            <Route path="/bus-tickets/detail" element={<Detail />} />
           </Routes>
 
           {/* Footer */}
+          <Footer />
           
         </main>
       </Router>

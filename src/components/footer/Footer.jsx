@@ -1,101 +1,190 @@
 import React from 'react'
-import { FaMapPin } from 'react-icons/fa6'
+import RootLayout from '../../layout/RootLayout'
 import { Link } from 'react-router-dom'
+import { FaFacebookF, FaInstagram, FaYoutube } from 'react-icons/fa'
+import { FaXTwitter } from 'react-icons/fa6'
+import { motion } from 'framer-motion'
 
-import Logo from "../../assets/logo.png";
+import MasterCardImg from "../../assets/mastercard.png"
+import CreditCardImg from "../../assets/creditcard.png"
+import CashImg from "../../assets/cash.png"
+
+const socialLinks = [
+  { icon: FaInstagram, url: "https://www.instagram.com/h.d.s.travels/" },
+  { icon: FaFacebookF, url: "https://www.facebook.com" },
+  { icon: FaYoutube, url: "https://www.youtube.com" },
+  { icon: FaXTwitter, url: "https://twitter.com" }
+]
 
 const Footer = () => {
+
+  const slideUpVariant = {
+    hidden: { opacity: 0, y: 50 },
+    visible: { opacity: 1, y: 0 },
+  }
+
   return (
-    <footer className="w-full lg:px-28 md:px-16 sm:px-7 px-4 py-8 bg-neutral-200/60 dark:bg-neutral-900/70">
-      <div className="grid grid-cols-5 gap-5">
-        <div className="space-y-5 col-span-2">
-          <Link to="/" className='text-xl text-neutral-800 dark:text-neutral-200 font-bold'>
-            <img src={Logo} alt="logo" className="w-44 h-auto object-contain" />
-          </Link>
-          <p className="text-neutral-600 dark:text-neutral-500 text-base font-normal pr-10">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Aperiam placeat corporis, rerum laborum optio laboriosam perferendis sit culpa doloribus, tempora aliquam repellendus reprehenderit, ullam alias.
-          </p>
-        </div>
+    <div className='w-full h-auto bg-neutral-950 py-12'>
+      
+      <RootLayout className="space-y-10">
 
-        <div className="space-y-7">
-          <h1 className="text-lg font-medium">About Us</h1>
-          <ul className="space-y-2 text-neutral-600 dark:text-neutral-500 text-base font-normal">
-            <li>
-              <Link to="#" className='hover:text-violet-600 ease-in-out duration-300'>About Us</Link>
-            </li>
-            <li>
-              <Link to="#" className='hover:text-violet-600 ease-in-out duration-300'>Contact Us</Link>
-            </li>
-            <li>
-              <Link to="#" className='hover:text-violet-600 ease-in-out duration-300'>Privacy Policy</Link>
-            </li>
-            <li>
-              <Link to="#" className='hover:text-violet-600 ease-in-out duration-300'>Terms and Conditions</Link>
-            </li>
-          </ul>
-        </div>
+        {/* Footer other content */}
+        <motion.div 
+          className="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-8"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: false, amount: 0.2 }}
+          transition={{ duration: 0.8 }}
+          variants={slideUpVariant}
+        >
 
-        <div className="space-y-7">
-          <h1 className="text-lg font-medium">Services</h1>
-          <ul className="space-y-2 text-neutral-600 dark:text-neutral-500 text-base font-normal">
-            <li>
-              <Link to="#" className='hover:text-violet-600 ease-in-out duration-300'>Safety Guarantee</Link>
-            </li>
-            <li>
-              <Link to="#" className='hover:text-violet-600 ease-in-out duration-300'>FAQ & Support</Link>
-            </li>
-            <li>
-              <Link to="#" className='hover:text-violet-600 ease-in-out duration-300'>Luxury Buses</Link>
-            </li>
-            <li>
-              <Link to="#" className='hover:text-violet-600 ease-in-out duration-300'>Enough Facilities</Link>
-            </li>
-          </ul>
-        </div>
+          <div className="col-span-1 md:col-span-2 space-y-8 md:pr-10 pr-0">
 
-        <div className="space-y-7">
-          <h1 className="text-lg font-medium">Get In Touch</h1>
-          <div className="space-y-4">
-            <div className="flex gap-x-2">
-              <FaMapPin className='text-2xl text-neutral-600 dark:text-neutral-500' />
-              <div className="flex flex-col">
-                <p className="text-xs text-neutral-600 dark:text-neutral-500">
-                  For Support & Reservations
-                </p>
-                <p className="text-sm text-neutral-700 dark:text-neutral-400">
-                  123, Main Street, Anytown, USA
-                </p>
-              </div>
+            <div className="space-y-3">
+              {/* Logo */}
+              <Link to="/" className='text-4xl sm:text-5xl md:text-6xl text-red-500 font-bold'>
+                  H.D.S. Travels
+              </Link>
+
+              {/* some description */}
+              <p className="text-sm text-neutral-500 font-normal">
+                Bus is all about booking tickets through online platform to make comfortable to the passenger. Lorem ipsum dolor sit amet consectetur adipisicing elit. Labore impedit, maiores dicta soluta tempore officiis at, deleniti praesentium, veritatis nobis inventore! A animi deleniti quam? Error fuga repudiandae deserunt officia.
+              </p>
+            </div>
+            
+            {/* Social links */}
+            <div className="w-full flex items-center gap-3 sm:gap-5">
+              {socialLinks.map(({ icon: Icon, url }, idx) => (
+                <a 
+                  key={idx} 
+                  href={url} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="w-10 sm:w-11 h-10 sm:h-11 rounded-xl bg-neutral-800/40 hover:bg-primary flex items-center justify-center cursor-pointer ease-in-out duration-500"
+                >
+                  <Icon className='w-5 h-5 text-neutral-50' />
+                </a>
+              ))}
             </div>
 
-            <div className="flex gap-x-2">
-              <FaMapPin className='text-2xl text-neutral-600 dark:text-neutral-500' />
-              <div className="flex flex-col">
-                <p className="text-xs text-neutral-600 dark:text-neutral-500">
-                  For Support & Reservations
-                </p>
-                <p className="text-sm text-neutral-700 dark:text-neutral-400">
-                  123, Main Street, Anytown, USA
-                </p>
-              </div>
+          </div>
+
+          <div className="col-span-1 space-y-5">
+            <h1 className="text-lg text-neutral-100 font-semibold">
+              Quick Links
+            </h1>
+
+            <div className="space-y-2">
+
+              <Link to="/" className='block text-base text-neutral-500 hover:text-neutral-300 ease-in-out duration-300'>
+                About Us
+              </Link>
+
+              <Link to="/" className='block text-base text-neutral-500 hover:text-neutral-300 ease-in-out duration-300'>
+                 My Account
+              </Link>
+
+              <Link to="/" className='block text-base text-neutral-500 hover:text-neutral-300 ease-in-out duration-300'>
+                Reserve your Ticket
+              </Link>
+
+              <Link to="/" className='block text-base text-neutral-500 hover:text-neutral-300 ease-in-out duration-300'>
+                Create your Account
+              </Link>
+
             </div>
 
-            <div className="flex gap-x-2">
-              <FaMapPin className='text-2xl text-neutral-600 dark:text-neutral-500' />
-              <div className="flex flex-col">
-                <p className="text-xs text-neutral-600 dark:text-neutral-500">
-                  For Support & Reservations
-                </p>
-                <p className="text-sm text-neutral-700 dark:text-neutral-400">
-                  123, Main Street, Anytown, USA
-                </p>
-              </div>
+          </div>
+
+          <div className="col-span-1 space-y-5">
+            <h1 className="text-lg text-neutral-100 font-semibold">
+              Top Reserved Routes
+            </h1>
+
+            <div className="space-y-2">
+
+              <Link to="/" className='block text-base text-neutral-500 hover:text-neutral-300 ease-in-out duration-300'>
+                Kathmanda - Pokhara
+              </Link>
+
+              <Link to="/" className='block text-base text-neutral-500 hover:text-neutral-300 ease-in-out duration-300'>
+                Pokhara - Chitwan
+              </Link>
+
+              <Link to="/" className='block text-base text-neutral-500 hover:text-neutral-300 ease-in-out duration-300'>
+                Chitwan - Lumbini
+              </Link>
+
+              <Link to="/" className='block text-base text-neutral-500 hover:text-neutral-300 ease-in-out duration-300'>
+                Lumbini - Biratnagar
+              </Link>
+
             </div>
           </div>
-        </div>
 
-      </div>
-    </footer>
+          <div className="col-span-1 space-y-5">
+            <h1 className="text-lg text-neutral-100 font-semibold">
+              Support Links
+            </h1>
+
+            <div className="space-y-2">
+
+              <Link to="/" className='block text-base text-neutral-500 hover:text-neutral-300 ease-in-out duration-300'>
+                Privacy Policy
+              </Link>
+
+              <Link to="/" className='block text-base text-neutral-500 hover:text-neutral-300 ease-in-out duration-300'>
+                Terms & Conditions
+              </Link>
+
+              <Link to="/" className='block text-base text-neutral-500 hover:text-neutral-300 ease-in-out duration-300'>
+                Help & Support Center
+              </Link>
+
+              <Link to="/" className='block text-base text-neutral-500 hover:text-neutral-300 ease-in-out duration-300'>
+                FaQs
+              </Link>
+
+            </div>
+          </div>
+
+        </motion.div>
+
+        {/* Seperator */}
+        <div className="w-full h-px bg-neutral-800/50" />
+
+        {/* Copyright */}
+        <motion.div
+          className="w-full flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-0"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: false, amount: 0.2 }}
+          transition={{ duration: 0.8 }}
+          variants={slideUpVariant}
+        >
+          <p className="text-sm text-neutral-600 font-normal text-center sm:text-left">
+            Copyright &Copy; 2025 H.D.S. Travels. All rights reserved.
+          </p>
+
+          <div className="flex items-center gap-2 sm:gap-2">
+            <div className="">
+              <img src={MasterCardImg} alt="" className="w-fit h-9 object-contain object-center" />
+            </div>
+
+            <div className="">
+              <img src={CreditCardImg} alt="" className="w-fit h-9 object-contain object-center" />
+            </div>
+
+            <div className="">
+              <img src={CashImg} alt="" className="w-fit h-9 object-contain object-center" />
+            </div>
+
+          </div>
+        </motion.div>
+
+      </RootLayout>
+
+    </div>
   )
 }
 

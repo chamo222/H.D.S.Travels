@@ -20,19 +20,19 @@ const Hero = () => {
         transition={{ duration: 0.85, ease: "easeInOut"}}
     >
 
-        <RootLayout className="absolute top-0 left-0 w-full h-full py-[9ch] bg-gradient-to-b from-neutral-50/70 to-neutral-50/5 flex items-center justify-start text-center flex-col gap-9">
+        <RootLayout className="absolute top-0 left-0 w-full h-full py-[6ch] sm:py-[9ch] bg-gradient-to-b from-neutral-50/70 to-neutral-50/5 flex items-center justify-center sm:justify-start text-center sm:text-left flex-col gap-6 sm:gap-9 px-4 sm:px-0">
 
             {/* Title Section */}
-            <div className="space-y-2">
+            <div className="space-y-2 sm:space-y-2">
 
                 <motion.p
                     initial={{ opacity: 0, y: -800 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -800 }}
                     transition={{ duration: 2, ease: "easeOut" }}
-                    className="text-lg text-neutral-500 font-medium"
+                    className="text-center text-base sm:text-lg text-neutral-500 font-medium"
                 >
-                    Get you bus tickets
+                    Get your bus tickets
                 </motion.p>
 
                 <motion.h1
@@ -40,7 +40,7 @@ const Hero = () => {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -800 }}
                     transition={{ duration: 1.85, ease: "easeOut" }}
-                    className="text-5xl text-neutral-800 font-bold capitalize"
+                    className="text-3xl sm:text-5xl text-neutral-800 font-bold capitalize"
                 >
                     Find best bus for you!
                 </motion.h1>
