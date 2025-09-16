@@ -1,44 +1,51 @@
 import React, { useState, useRef } from "react";
 import { motion, useInView } from "framer-motion";
 
+import Bus1 from "../../assets/bus1.jpg";
+import Bus2 from "../../assets/bus2.jpg";
+import Bus3 from "../../assets/bus3.jpg";
+import HDCBus4 from "../../assets/hdcbus4.jpg";
+import HDCTrackers from "../../assets/H.D.C.Trackers.jpg";
+import Server from "../../assets/server.jpg";
+
 const images = [
   {
-    src: "/src/assets/bus1.jpg",
+    src: Bus1,
     alt: "Ashok Bus",
     title: "Ashok Bus",
     description:
       "The Ashok Bus is a reliable and comfortable option for long-distance travel. It features ergonomic seating, air conditioning, and large windows for scenic views. Perfect for families, students, and travelers who want a smooth ride on highways and urban routes. Safety features include seat belts, emergency exits, and anti-lock braking systems. Ideal for trips across the country while maintaining comfort and punctuality.",
   },
   {
-    src: "/src/assets/bus2.jpg",
+    src: Bus2,
     alt: "Leyland Bus",
     title: "Leyland Bus",
     description:
       "The Leyland Bus combines modern design with comfort and durability. It comes equipped with reclining seats, on-board entertainment, and high-efficiency suspension systems. Designed for urban and rural travel, Leyland Buses are trusted for their reliability, ease of maintenance, and long-lasting performance. Perfect for group tours, city transport, and regular commuter routes.",
   },
   {
-    src: "/src/assets/bus3.jpg",
+    src: Bus3,
     alt: "Viking Bus",
     title: "Viking Bus",
     description:
       "Viking Buses are known for their robust construction and high passenger capacity. With modern interiors, efficient fuel systems, and safety compliance, they are suitable for long-haul journeys as well as intercity travel. Comfortable seating and quiet engines make the Viking Bus ideal for daily commuters and travel agencies looking for premium service.",
   },
   {
-    src: "/src/assets/hdcbus4.jpg",
+    src: HDCBus4,
     alt: "HDC Bus",
     title: "HDC Bus",
     description:
       "HDC Buses offer a perfect balance of style and functionality. Designed with spacious interiors, climate control, and safety features, they cater to both private and public transport needs. Its sturdy design ensures durability on highways and rough terrains, making it a versatile choice for modern transportation solutions.",
   },
   {
-    src: "/src/assets/H.D.C.Trackers.jpg",
+    src: HDCTrackers,
     alt: "HDC Trackers",
     title: "HDC Trackers",
     description:
       "HDC Trackers provide advanced GPS and tracking solutions for buses. Fleet managers can monitor routes, ensure safety, and improve efficiency. Integrated with digital dashboards and real-time updates, this system is essential for modern transport services that value operational excellence and customer satisfaction.",
   },
   {
-    src: "/src/assets/server.jpg",
+    src: Server,
     alt: "Server Setup",
     title: "Server Infrastructure",
     description:

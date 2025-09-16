@@ -1,6 +1,8 @@
 import React from "react";
 import { motion } from "framer-motion";
 
+import Bus1Img from "../../../src/assets/bus1.jpg"
+
 const fadeIn = (direction = "up") => ({
   hidden: { opacity: 0, y: direction === "up" ? 50 : -50 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } },
@@ -85,7 +87,7 @@ const About = () => {
           </p>
         </div>
         <motion.img
-          src="/src/assets/bus1.jpg"
+          src={Bus1Img}
           alt="Mission"
           className="rounded-2xl shadow-lg w-full h-80 object-cover"
           variants={fadeIn("up")}
