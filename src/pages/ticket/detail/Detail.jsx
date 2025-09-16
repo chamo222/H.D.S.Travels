@@ -6,6 +6,8 @@ import WarningAlert from '../../../components/alertmessage/WarningAlert'
 import BusSeat from './seat/busseat/BusSeat'
 import ToggleBtn from '../../../components/togglebtn/ToggleBtn'
 import Amenities from './amenities/Amenities'
+import ReservationPolicy from './reservationpolicy/ReservationPolicy'
+import BusImage from './busimage/BusImage'
 
 const Detail = () => {
 
@@ -61,13 +63,16 @@ const Detail = () => {
                                 <div className="w-full grid grid-cols-7 gap-20">
 
                                     {/* Amenities */}
-                                    <Amenities />
+                                    <Amenities /> 
 
                                     {/* Reservation policy */}
+                                    <ReservationPolicy />
 
                                 </div>
 
                                 {/* bus images */}
+                                <BusImage />
+                                
                             </div>
 
                         </ToggleBtn>
