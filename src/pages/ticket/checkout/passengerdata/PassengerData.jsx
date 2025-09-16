@@ -32,7 +32,7 @@ const PassengerData = () => {
             <div className="w-full space-y-2">
                 <label className="text-sm text-neutral-500 font-medium">Pickup Station</label>
 
-                <select className='className="w-full h-14 px-4 bg-neutral-100/40 focus:bg-neutral-100/70 border border-neutral-400/50 rounded-xl focus:outline-none focus:border-neutral-400 text-base text-neutral-600 font-normal placeholder:text-neutral-400'>
+                <select className="w-full h-14 px-4 bg-neutral-100/40 focus:bg-neutral-100/70 border border-neutral-400/50 rounded-xl focus:outline-none focus:border-neutral-400 text-base text-neutral-600 font-normal">
                     <option selected disabled>
                         Choose Your Nearest Pickup Station
                     </option>

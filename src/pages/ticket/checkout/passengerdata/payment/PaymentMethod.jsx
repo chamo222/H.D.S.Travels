@@ -19,7 +19,8 @@ const PaymentMethod = () => {
             Select Payment Method
         </h6>
 
-        <div className="w-full grid grid-cols-2 gap-10">
+        {/* Responsive Grid */}
+        <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10">
             <PaymentCard 
                 selectedPayment={selectedPaymentMethod}
                 value={"mastercard"}
@@ -38,6 +39,7 @@ const PaymentMethod = () => {
             />
         </div>
 
+        {/* Add new card */}
         <div className="w-full flex justify-end">
             <div className="w-fit flex items-center justify-center gap-x-2 cursor-pointer text-base font-normal text-primary">
                 <FaPlus />
