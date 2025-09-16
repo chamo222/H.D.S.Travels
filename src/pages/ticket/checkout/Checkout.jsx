@@ -1,8 +1,8 @@
-import React from 'react'
-import TopLayout from '../../../layout/toppage/TopLayout'
-import RootLayout from '../../../layout/RootLayout'
-import PassengerData from './passengerdata/Passengerdata'
-import BookingStatus from './bookingstatus/BookingStatus'
+import React from 'react';
+import TopLayout from '../../../layout/toppage/TopLayout';
+import RootLayout from '../../../layout/RootLayout';
+import PassengerData from "./passengerdata/PassengerData";
+import BookingStatus from './bookingstatus/BookingStatus';
 
 const Checkout = () => {
   return (
