@@ -9,7 +9,7 @@ import {
   FaInfoCircle,
   FaHandsHelping,
 } from "react-icons/fa";
-import { MdPhotoLibrary } from "react-icons/md";
+import { MdAdminPanelSettings, MdPhotoLibrary } from "react-icons/md";
 import { Link, useNavigate } from "react-router-dom";
 import { useUser, UserButton } from "@clerk/clerk-react";
 
@@ -21,17 +21,29 @@ const Navbar = () => {
   const navigate = useNavigate();
   const { isSignedIn, user } = useUser();
 
+  const role = user?.publicMetadata?.role; // Clerk metadata role
+
   const navItems = [
     { label: "Home", link: "/", icon: <FaHome /> },
     { label: "Services", link: "/services", icon: <FaHandsHelping /> },
     { label: "Tickets", link: "/bus-tickets", icon: <FaBus /> },
     { label: "About", link: "/about", icon: <FaInfoCircle /> },
     { label: "Gallery", link: "/gallery", icon: <MdPhotoLibrary /> },
-  ];
+
+    // Driver-only
+    ...(role === "driver"
+      ? [{ label: "Timetable", link: "/timetable", icon: <FaBus /> }]
+      : []),
+
+      // Admin-only items
+      ...(role === "admin" ? [
+        { label: "Admin Panel", link: "/admin/driver", icon: <MdAdminPanelSettings /> },
+        { label: "Timetable", link: "/timetable", icon: <FaBus /> }, // admins can see timetable too
+      ] : []),
+    ];
 
   const handleToggle = () => setOpen(!open);
   const handleClose = () => setOpen(false);
-
   const handleRedirect = (link) => {
     navigate(link);
     handleClose();
@@ -39,11 +51,8 @@ const Navbar = () => {
 
   // Prevent body scroll when sidebar is open
   useEffect(() => {
-    if (open) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
+    if (open) document.body.style.overflow = "hidden";
+    else document.body.style.overflow = "";
     return () => {
       document.body.style.overflow = "";
     };
@@ -54,9 +63,7 @@ const Navbar = () => {
       const currentScrollState = window.scrollY;
       if (currentScrollState > scrollPosition && currentScrollState > 50) {
         setIsVisible(false);
-      } else {
-        setIsVisible(true);
-      }
+      } else setIsVisible(true);
       setScrollPosition(currentScrollState);
     };
     window.addEventListener("scroll", handleScroll);
@@ -65,7 +72,6 @@ const Navbar = () => {
 
   return (
     <>
-      {/* Glow animation */}
       <style>{`
         @keyframes glowPulse {
           0%, 100% { box-shadow: 0 0 5px rgba(34,197,94,0.6), 0 0 10px rgba(34,197,94,0.4); }
@@ -74,7 +80,6 @@ const Navbar = () => {
         .glow { animation: glowPulse 1.5s infinite ease-in-out; }
       `}</style>
 
-      {/* Overlay for Sidebar */}
       {open && (
         <div
           onClick={handleClose}
@@ -82,18 +87,16 @@ const Navbar = () => {
         />
       )}
 
-      {/* Navbar */}
       <nav
-        className={`w-full fixed top-0 left-0 z-50 transition-transform duration-500
-          ${isVisible ? "translate-y-0" : "-translate-y-full"} 
-          ${
-            scrollPosition > 50
-              ? "backdrop-blur-md bg-white/30 shadow-md h-[7ch]"
-              : "bg-transparent h-[9ch]"
-          }`}
+        className={`w-full fixed top-0 left-0 z-50 transition-transform duration-500 ${
+          isVisible ? "translate-y-0" : "-translate-y-full"
+        } ${
+          scrollPosition > 50
+            ? "backdrop-blur-md bg-white/30 shadow-md h-[7ch]"
+            : "bg-transparent h-[9ch]"
+        }`}
       >
         <div className="w-full h-full flex items-center justify-between lg:px-24 md:px-16 sm:px-7 px-4">
-          {/* Logo */}
           <Link
             to="/"
             className="text-2xl md:text-3xl font-extrabold text-primary tracking-tight hover:scale-110 transition-transform"
@@ -101,7 +104,6 @@ const Navbar = () => {
             H.D.S. Travels
           </Link>
 
-          {/* Mobile Wi-Fi Button (only when sidebar closed) */}
           {!open && (
             <Link to="/wifi" className="md:hidden">
               <button className="ml-4 px-4 py-2 bg-green-500 text-white font-semibold rounded-full border border-green-500 glow flex items-center gap-2 hover:bg-transparent hover:text-green-500 hover:shadow-lg hover:scale-110 transition-all duration-300">
@@ -110,19 +112,10 @@ const Navbar = () => {
             </Link>
           )}
 
-          {/* Hamburger */}
-          <div
-            className="md:hidden cursor-pointer text-neutral-400"
-            onClick={handleToggle}
-          >
-            {open ? (
-              <FaTimes className="w-6 h-6" />
-            ) : (
-              <FaBars className="w-6 h-6" />
-            )}
+          <div className="md:hidden cursor-pointer text-neutral-400" onClick={handleToggle}>
+            {open ? <FaTimes className="w-6 h-6" /> : <FaBars className="w-6 h-6" />}
           </div>
 
-          {/* Desktop Nav */}
           <div className="hidden md:flex items-center gap-6">
             <ul className="flex items-center gap-10 text-lg font-medium text-neutral-700">
               {navItems.map((item, ind) => (
@@ -138,22 +131,19 @@ const Navbar = () => {
               ))}
             </ul>
 
-            {/* Free Wi-Fi Button */}
             <Link to="/wifi">
               <button className="px-5 py-2 bg-green-500 text-white font-semibold rounded-full border border-green-500 glow flex items-center gap-2 hover:bg-transparent hover:text-green-500 hover:shadow-lg hover:scale-110 transition-all duration-300">
                 <FaWifi /> Free Wi-Fi
               </button>
             </Link>
 
-            {/* User Section */}
             {isSignedIn ? (
               <div className="flex items-center gap-3 bg-white/70 dark:bg-neutral-800 px-3 py-1 rounded-full shadow-sm hover:shadow-md transition-all">
                 <UserButton
                   afterSignOutUrl="/"
                   appearance={{
                     elements: {
-                      avatarBox:
-                        "w-12 h-12 rounded-full border-2 border-primary",
+                      avatarBox: "w-12 h-12 rounded-full border-2 border-primary",
                     },
                   }}
                 />
@@ -172,14 +162,12 @@ const Navbar = () => {
         </div>
       </nav>
 
-      {/* Sidebar (Mobile) */}
       <div
         className={`fixed top-0 right-0 h-full w-72 bg-white/10 backdrop-blur-md shadow-2xl z-50 transform transition-transform duration-500 ease-in-out ${
           open ? "translate-x-0" : "translate-x-full"
         } md:hidden`}
       >
         <div className="flex flex-col h-full p-6">
-          {/* Header */}
           <div className="flex justify-between items-center mb-8">
             <h2 className="text-2xl font-bold text-primary">H.D.S Travels</h2>
             <FaTimes
@@ -188,7 +176,6 @@ const Navbar = () => {
             />
           </div>
 
-          {/* Mobile Nav Items */}
           <ul className="flex flex-col gap-5 text-lg font-medium text-neutral-700">
             {navItems.map((item, ind) => (
               <li
@@ -206,7 +193,6 @@ const Navbar = () => {
             ))}
           </ul>
 
-          {/* User Info + Wi-Fi */}
           <div className="mt-auto flex flex-col gap-3">
             {isSignedIn ? (
               <div className="flex items-center gap-3 bg-white/70 dark:bg-neutral-800 px-3 py-2 rounded-full shadow-sm hover:shadow-md transition-all justify-center">
@@ -214,8 +200,7 @@ const Navbar = () => {
                   afterSignOutUrl="/"
                   appearance={{
                     elements: {
-                      avatarBox:
-                        "w-12 h-12 rounded-full border-2 border-primary",
+                      avatarBox: "w-12 h-12 rounded-full border-2 border-primary",
                     },
                   }}
                 />

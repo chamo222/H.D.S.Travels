@@ -1,0 +1,10 @@
+{
+  "2025-09-18": [
+    { "bus": "NA-8330", "from": "Colombo", "to": "Kandy", "departure": "08:00 AM", "arrival": "11:00 AM" },
+    { "bus": "NA-9637", "from": "Galle", "to": "Colombo", "departure": "09:30 AM", "arrival": "01:00 PM" }
+  ],
+  "2025-09-19": [
+    { "bus": "NA-8330", "from": "Jaffna", "to": "Anuradhapura", "departure": "06:00 AM", "arrival": "12:00 PM" },
+    { "bus": "NA-9637", "from": "Colombo", "to": "Galle", "departure": "07:45 AM", "arrival": "10:45 AM" }
+  ]
+}

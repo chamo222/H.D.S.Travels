@@ -85,3 +85,5 @@ const TicketCard = ({ icon: Icon, busName, routeFrom, routeTo, arrivalTime, depa
 }
 
 export default TicketCard 
+
+{ label: "Admin", link: "/admin/driver", icon: <MdAdminPanelSettings /> },
