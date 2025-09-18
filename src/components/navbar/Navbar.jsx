@@ -21,7 +21,7 @@ const Navbar = () => {
   const navigate = useNavigate();
   const { isSignedIn, user } = useUser();
 
-  const role = user?.publicMetadata?.role;
+  const role = user?.publicMetadata?.role; // Clerk metadata role
 
   const navItems = [
     { label: "Home", link: "/", icon: <FaHome /> },
@@ -30,17 +30,17 @@ const Navbar = () => {
     { label: "About", link: "/about", icon: <FaInfoCircle /> },
     { label: "Gallery", link: "/gallery", icon: <MdPhotoLibrary /> },
 
+    // Driver-only
     ...(role === "driver"
       ? [{ label: "Timetable", link: "/timetable", icon: <FaBus /> }]
       : []),
 
-    ...(role === "admin"
-      ? [
-          { label: "Admin", link: "/admin/driver", icon: <MdAdminPanelSettings /> },
-          { label: "Timetable", link: "/timetable", icon: <FaBus /> },
-        ]
-      : []),
-  ];
+      // Admin-only items
+      ...(role === "admin" ? [
+        { label: "Admin", link: "/admin/driver", icon: <MdAdminPanelSettings /> },
+        { label: "Timetable", link: "/timetable", icon: <FaBus /> }, // admins can see timetable too
+      ] : []),
+    ];
 
   const handleToggle = () => setOpen(!open);
   const handleClose = () => setOpen(false);
@@ -49,6 +49,7 @@ const Navbar = () => {
     handleClose();
   };
 
+  // Prevent body scroll when sidebar is open
   useEffect(() => {
     if (open) document.body.style.overflow = "hidden";
     else document.body.style.overflow = "";
@@ -96,18 +97,27 @@ const Navbar = () => {
         }`}
       >
         <div className="w-full h-full flex items-center justify-between lg:px-24 md:px-16 sm:px-7 px-4">
-          {/* Logo */}
           <Link
             to="/"
-            className="text-2xl md:text-3xl font-extrabold text-primary tracking-tight hover:scale-110 transition-transform flex-shrink-0"
+            className="text-2xl md:text-3xl font-extrabold text-primary tracking-tight hover:scale-110 transition-transform"
           >
             H.D.S. Travels
           </Link>
 
-          {/* Desktop nav & buttons */}
-          <div className="hidden md:flex items-center gap-6 flex-1 justify-between">
-            {/* Navigation items */}
-            <ul className="flex items-center gap-10 text-lg font-medium text-neutral-700 flex-wrap">
+          {!open && (
+            <Link to="/wifi" className="md:hidden">
+              <button className="ml-4 px-4 py-2 bg-green-500 text-white font-semibold rounded-full border border-green-500 glow flex items-center gap-2 hover:bg-transparent hover:text-green-500 hover:shadow-lg hover:scale-110 transition-all duration-300">
+                <FaWifi /> Free Wi-Fi
+              </button>
+            </Link>
+          )}
+
+          <div className="md:hidden cursor-pointer text-neutral-400" onClick={handleToggle}>
+            {open ? <FaTimes className="w-6 h-6" /> : <FaBars className="w-6 h-6" />}
+          </div>
+
+          <div className="hidden md:flex items-center gap-6">
+            <ul className="flex items-center gap-10 text-lg font-medium text-neutral-700">
               {navItems.map((item, ind) => (
                 <li key={ind}>
                   <Link
@@ -121,46 +131,37 @@ const Navbar = () => {
               ))}
             </ul>
 
-            {/* Buttons */}
-            <div className="flex items-center gap-4 flex-shrink-0">
-              <Link to="/wifi">
-                <button className="px-5 py-2 bg-green-500 text-white font-semibold rounded-full border border-green-500 glow flex items-center gap-2 hover:bg-transparent hover:text-green-500 hover:shadow-lg hover:scale-110 transition-all duration-300">
-                  <FaWifi /> Free Wi-Fi
+            <Link to="/wifi">
+              <button className="px-5 py-2 bg-green-500 text-white font-semibold rounded-full border border-green-500 glow flex items-center gap-2 hover:bg-transparent hover:text-green-500 hover:shadow-lg hover:scale-110 transition-all duration-300">
+                <FaWifi /> Free Wi-Fi
+              </button>
+            </Link>
+
+            {isSignedIn ? (
+              <div className="flex items-center gap-3 bg-white/70 dark:bg-neutral-800 px-3 py-1 rounded-full shadow-sm hover:shadow-md transition-all">
+                <UserButton
+                  afterSignOutUrl="/"
+                  appearance={{
+                    elements: {
+                      avatarBox: "w-12 h-12 rounded-full border-2 border-primary",
+                    },
+                  }}
+                />
+                <span className="font-semibold text-neutral-800 dark:text-neutral-200">
+                  {user.fullName || user.firstName}
+                </span>
+              </div>
+            ) : (
+              <Link to="/signin">
+                <button className="px-6 py-2 bg-primary text-white font-semibold rounded-full border border-primary flex items-center gap-2 hover:bg-transparent hover:text-primary hover:shadow-lg hover:scale-110 transition-all duration-300">
+                  <FaUser /> Sign In
                 </button>
               </Link>
-
-              {isSignedIn ? (
-                <div className="flex items-center gap-3 bg-white/70 dark:bg-neutral-800 px-3 py-1 rounded-full shadow-sm hover:shadow-md transition-all">
-                  <UserButton
-                    afterSignOutUrl="/"
-                    appearance={{
-                      elements: {
-                        avatarBox: "w-12 h-12 rounded-full border-2 border-primary",
-                      },
-                    }}
-                  />
-                  <span className="font-semibold text-neutral-800 dark:text-neutral-200">
-                    {user.fullName || user.firstName}
-                  </span>
-                </div>
-              ) : (
-                <Link to="/signin">
-                  <button className="px-6 py-2 bg-primary text-white font-semibold rounded-full border border-primary flex items-center gap-2 hover:bg-transparent hover:text-primary hover:shadow-lg hover:scale-110 transition-all duration-300">
-                    <FaUser /> Sign In
-                  </button>
-                </Link>
-              )}
-            </div>
-          </div>
-
-          {/* Mobile menu toggle */}
-          <div className="md:hidden cursor-pointer text-neutral-400" onClick={handleToggle}>
-            {open ? <FaTimes className="w-6 h-6" /> : <FaBars className="w-6 h-6" />}
+            )}
           </div>
         </div>
       </nav>
 
-      {/* Mobile sidebar */}
       <div
         className={`fixed top-0 right-0 h-full w-72 bg-white/10 backdrop-blur-md shadow-2xl z-50 transform transition-transform duration-500 ease-in-out ${
           open ? "translate-x-0" : "translate-x-full"
