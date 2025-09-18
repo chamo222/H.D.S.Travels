@@ -6,28 +6,30 @@ import usersRouter from "./routes/users.js";
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 5001;
-const HOST = "0.0.0.0"; // Important for Fly.io deployment
+const PORT = process.env.PORT || 8080; // ✅ Fly.io sets PORT automatically
 
-// Enable CORS for frontend
+// Enable CORS for both localhost and deployed frontend
 app.use(cors({
-  origin: process.env.FRONTEND_URL || "https://hdstravels.netlify.app", // replace with your frontend URL
+  origin: [
+    "http://localhost:3000", // for local dev
+    "https://hdstravels.netlify.app" // replace with your Netlify domain
+  ],
   methods: ["GET", "POST", "PATCH", "DELETE"],
   credentials: true
 }));
 
-// Parse JSON
+// Middleware
 app.use(express.json());
 
-// Test route at root
+// Test route
 app.get("/", (req, res) => {
-  res.send("Server is running!");
+  res.send("Server is running on Fly.io!");
 });
 
-// Users routes
+// API routes
 app.use("/api/users", usersRouter);
 
-// Start server
-app.listen(PORT, HOST, () => {
-  console.log(`Server running on http://${HOST}:${PORT}`);
+// Start server (must bind to 0.0.0.0 on Fly.io)
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`✅ Server running on port ${PORT}`);
 });

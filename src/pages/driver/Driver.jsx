@@ -8,7 +8,8 @@ const fadeIn = (direction = "up") => ({
   visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } },
 });
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+// Use environment variable for backend URL
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 const Driver = () => {
   const { isSignedIn, user } = useUser();
@@ -21,13 +22,11 @@ const Driver = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const dropdownRef = useRef(null);
 
-  // Redirect if not signed in
   useEffect(() => {
     if (!isSignedIn) navigate("/signin");
     if (user && user.publicMetadata?.role !== "admin") navigate("/");
   }, [isSignedIn, user, navigate]);
 
-  // Fetch all users
   const fetchUsers = async () => {
     try {
       const res = await fetch(`${BACKEND_URL}/api/users`, {
@@ -122,19 +121,13 @@ const Driver = () => {
           animation: gradientMove 3s linear infinite;
         }
         @keyframes gradientMove {
-          0% {
-            background-position: 0% 50%;
-          }
-          50% {
-            background-position: 100% 50%;
-          }
-          100% {
-            background-position: 0% 50%;
-          }
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
         }
       `}</style>
 
-      {/* Search and Dropdown */}
+      {/* Search */}
       <motion.div className="max-w-3xl mx-auto" variants={fadeIn("up")}>
         <input
           type="text"
@@ -145,6 +138,7 @@ const Driver = () => {
         />
       </motion.div>
 
+      {/* Users Dropdown & Buttons */}
       <motion.div
         className="max-w-3xl mx-auto bg-white/10 backdrop-blur-sm p-8 rounded-3xl shadow-lg space-y-6 relative z-20"
         variants={fadeIn("up")}
@@ -155,7 +149,6 @@ const Driver = () => {
           <span className="text-purple-400 font-semibold">Admin</span>.
         </p>
 
-        {/* Dropdown */}
         <div className="relative" ref={dropdownRef}>
           <div
             onClick={() => setDropdownOpen(!dropdownOpen)}
@@ -205,7 +198,6 @@ const Driver = () => {
           )}
         </div>
 
-        {/* Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 mt-4">
           <button
             onClick={() => promoteUser("driver")}
@@ -221,12 +213,10 @@ const Driver = () => {
           </button>
         </div>
 
-        {message && (
-          <p className="text-center text-yellow-400 font-medium mt-2">{message}</p>
-        )}
+        {message && <p className="text-center text-yellow-400 font-medium mt-2">{message}</p>}
       </motion.div>
 
-      {/* Tables */}
+      {/* User Tables */}
       <motion.div className="space-y-12 max-w-6xl mx-auto" variants={fadeIn("up")}>
         <UserTable title="Users" users={regularUsers} />
         <UserTable title="Drivers" users={drivers} roleColor="purple" removeRole={removeRole} />
