@@ -8,6 +8,8 @@ const fadeIn = (direction = "up") => ({
   visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } },
 });
 
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+
 const Driver = () => {
   const { isSignedIn, user } = useUser();
   const navigate = useNavigate();
@@ -19,19 +21,17 @@ const Driver = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const dropdownRef = useRef(null);
 
-  // ** Redirect if not signed in **
+  // Redirect if not signed in
   useEffect(() => {
     if (!isSignedIn) navigate("/signin");
-    if (user && user.publicMetadata?.role !== "admin") navigate("/"); // Redirect non-admin users
+    if (user && user.publicMetadata?.role !== "admin") navigate("/");
   }, [isSignedIn, user, navigate]);
 
   // Fetch all users
   const fetchUsers = async () => {
     try {
-      const res = await fetch("http://localhost:5001/api/users", {
-        headers: {
-          "x-user-id": user?.id, // Use Clerk user ID
-        },
+      const res = await fetch(`${BACKEND_URL}/api/users`, {
+        headers: { "x-user-id": user?.id },
       });
       const data = await res.json();
       setUsers(data);
@@ -56,7 +56,7 @@ const Driver = () => {
   const promoteUser = async (role) => {
     if (!selectedUser) return setMessage("Please select a user");
     try {
-      const res = await fetch(`http://localhost:5001/api/users/make-${role}`, {
+      const res = await fetch(`${BACKEND_URL}/api/users/make-${role}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId: selectedUser.id }),
@@ -71,7 +71,7 @@ const Driver = () => {
 
   const removeRole = async (userId) => {
     try {
-      const res = await fetch("http://localhost:5001/api/users/remove-role", {
+      const res = await fetch(`${BACKEND_URL}/api/users/remove-role`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId }),

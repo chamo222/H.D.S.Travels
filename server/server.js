@@ -11,7 +11,7 @@ const HOST = "0.0.0.0"; // Important for Fly.io deployment
 
 // Enable CORS for frontend
 app.use(cors({
-  origin: process.env.FRONTEND_URL || "https://hdstravels.netlify.app/", // replace with your frontend URL
+  origin: process.env.FRONTEND_URL || "https://hdstravels.netlify.app", // replace with your frontend URL
   methods: ["GET", "POST", "PATCH", "DELETE"],
   credentials: true
 }));
