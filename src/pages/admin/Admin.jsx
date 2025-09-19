@@ -149,7 +149,7 @@ const Admin = () => {
   };
 
   const handleEdit = (timetable) => {
-    setEditId(timetable.id);
+    setEditId(timetable._id); // use _id instead of id
     setBusNumber(timetable.busNumber);
     setDate(timetable.date);
     setTime(timetable.departure);
@@ -226,7 +226,7 @@ const Admin = () => {
             transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
           />
           <FaBus className="text-purple-400 text-5xl animate-bounce" />
-          <p className="text-gray-300 mt-2">Loading, please wait...</p>
+          <p className="text-gray-300 mt-2">Loading, H.D.S.Travels Admin Panel...</p>
         </div>
       ) : (
         <>
@@ -391,7 +391,7 @@ const TimetableTable = ({ timetables, handleEdit, handleDelete }) => (
               <button onClick={() => handleEdit(t)} className="bg-yellow-400 hover:bg-yellow-500 text-black px-3 py-1 rounded-md flex items-center gap-1">
                 <FaEdit /> Edit
               </button>
-              <button onClick={() => handleDelete(t.id)} className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md flex items-center gap-1">
+              <button onClick={() => handleDelete(t._id)} className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md flex items-center gap-1">
                 <FaTrash /> Delete
               </button>
             </td>
