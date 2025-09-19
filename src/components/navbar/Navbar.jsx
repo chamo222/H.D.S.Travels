@@ -37,7 +37,7 @@ const Navbar = () => {
 
       // Admin-only items
       ...(role === "admin" ? [
-        { label: "Admin", link: "/admin/driver", icon: <MdAdminPanelSettings /> },
+        { label: "Admin ", link: "/AdminPanel", icon: <MdAdminPanelSettings /> },
         { label: "Timetable", link: "/timetable", icon: <FaBus /> }, // admins can see timetable too
       ] : []),
     ];

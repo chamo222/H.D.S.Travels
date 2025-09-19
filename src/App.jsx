@@ -12,7 +12,7 @@ import Gallery from './pages/gallery/Gallery';
 import Checkout from './pages/ticket/checkout/Checkout';
 import Invoice from './pages/ticket/invoice/Invoice';
 import Timetable from './pages/timetable/Timetable';
-import Driver from './pages/driver/Driver';
+import Admin from './pages/admin/Admin';
 
 const App = () => {
   return (
@@ -33,7 +33,7 @@ const App = () => {
             <Route path="/gallery" element={<Gallery />} />
             <Route path="/wifi" element={<Wifi />} />
             <Route path="/signin" element={<Signin />} />
-            <Route path="/admin/driver" element={<Driver />} />
+            <Route path="/AdminPanel" element={<Admin />} />
 
             {/* Ticket Detail Page */}
             <Route path="/bus-tickets/detail" element={<Detail />} />
