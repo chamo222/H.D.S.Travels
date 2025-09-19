@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { useUser } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
-import { FaBus, FaEdit, FaTrash } from "react-icons/fa";
+import { FaBus, FaEdit, FaSearch, FaTrash } from "react-icons/fa";
 
 const fadeIn = (direction = "up") => ({
   hidden: { opacity: 0, y: direction === "up" ? 50 : -50 },
@@ -33,7 +33,10 @@ const Admin = () => {
   const [arrival, setArrival] = useState("");
   const [rounds, setRounds] = useState(1);
   const [timetables, setTimetables] = useState([]);
-  const [editId, setEditId] = useState(null); // to track which timetable is being edited
+  const [editId, setEditId] = useState(null);
+
+  // Timetable search
+  const [timetableSearch, setTimetableSearch] = useState("");
 
   useEffect(() => {
     if (!isSignedIn) navigate("/signin");
@@ -125,7 +128,6 @@ const Admin = () => {
 
     try {
       if (editId) {
-        // Update existing timetable
         await fetch(`${BACKEND_URL}/api/timetable/${editId}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -133,7 +135,6 @@ const Admin = () => {
         });
         setEditId(null);
       } else {
-        // Add new timetable
         await fetch(`${BACKEND_URL}/api/timetable`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -149,7 +150,7 @@ const Admin = () => {
   };
 
   const handleEdit = (timetable) => {
-    setEditId(timetable._id); // use _id instead of id
+    setEditId(timetable._id);
     setBusNumber(timetable.busNumber);
     setDate(timetable.date);
     setTime(timetable.departure);
@@ -216,6 +217,14 @@ const Admin = () => {
   const drivers = filteredUsers.filter((u) => u.role === "driver");
   const admins = filteredUsers.filter((u) => u.role === "admin");
 
+  // Filter timetables by bus number, from, or to
+  const filteredTimetables = timetables.filter(
+    (t) =>
+      t.busNumber.toLowerCase().includes(timetableSearch.toLowerCase()) ||
+      (t.from && t.from.toLowerCase().includes(timetableSearch.toLowerCase())) ||
+      (t.to && t.to.toLowerCase().includes(timetableSearch.toLowerCase()))
+  );
+
   return (
     <div className="min-h-screen bg-black text-white px-6 py-16 space-y-12">
       {loading ? (
@@ -230,7 +239,7 @@ const Admin = () => {
         </div>
       ) : (
         <>
-          {/* User Management & Search */}
+          {/* User Management */}
           <motion.div className="relative max-w-[90%] mx-auto mt-20" variants={fadeIn("up")} initial="hidden" whileInView="visible">
             <div className="rounded-3xl p-[3px] md:p-[4px] bg-gradient-to-r from-purple-400 via-pink-500 to-yellow-500 animate-gradient-border">
               <div className="bg-black rounded-3xl px-6 py-4 md:py-6 shadow-md text-center">
@@ -239,35 +248,62 @@ const Admin = () => {
             </div>
           </motion.div>
 
-          <motion.div className="max-w-3xl mx-auto" variants={fadeIn("up")}>
+          <motion.div
+            className="max-w-3xl mx-auto relative"
+            variants={fadeIn("up")}
+          >
+            <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-neutral-50">
+              <FaSearch />
+            </span>
             <input
               type="text"
               placeholder="Search users, drivers, or admins..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full px-4 py-3 rounded-lg bg-gray-900 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="w-full pl-10 pr-4 py-3 rounded-lg bg-gray-900 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
             />
           </motion.div>
 
           <motion.div className="max-w-3xl mx-auto bg-white/10 backdrop-blur-sm p-8 rounded-3xl shadow-lg space-y-6 relative z-20" variants={fadeIn("up")}>
-            <p className="text-gray-300 text-lg text-center">Select a user to promote to <span className="text-yellow-400 font-semibold">Driver</span> or <span className="text-purple-400 font-semibold">Admin</span>.</p>
+            <p className="text-gray-300 text-lg text-center">
+              Select a user to promote to <span className="text-yellow-400 font-semibold">Driver</span> or <span className="text-purple-400 font-semibold">Admin</span>.
+            </p>
 
+            {/* Dropdown */}
             <div className="relative" ref={dropdownRef}>
-              <div onClick={() => setDropdownOpen(!dropdownOpen)} className="flex items-center justify-between cursor-pointer border border-gray-600 rounded-lg px-4 py-3 bg-black text-white focus:outline-none">
+              <div
+                onClick={() => setDropdownOpen(!dropdownOpen)}
+                className="flex items-center justify-between cursor-pointer border border-gray-600 rounded-lg px-4 py-3 bg-black text-white focus:outline-none"
+              >
                 {selectedUser ? (
                   <div className="flex items-center gap-3">
-                    <img src={selectedUser.profileImageUrl} alt="Profile" className="w-8 h-8 rounded-full object-cover"/>
-                    <div><div>{getUserDisplayName(selectedUser)}</div><div className="text-gray-400 text-sm">{selectedUser.email}</div></div>
+                    <img src={selectedUser.profileImageUrl} alt="Profile" className="w-8 h-8 rounded-full object-cover" />
+                    <div>
+                      <div>{getUserDisplayName(selectedUser)}</div>
+                      <div className="text-gray-400 text-sm">{selectedUser.email}</div>
+                    </div>
                   </div>
-                ) : <span>Select a user</span>}
+                ) : (
+                  <span>Select a user</span>
+                )}
                 <span className="text-gray-400">{dropdownOpen ? "▲" : "▼"}</span>
               </div>
               {dropdownOpen && (
                 <div className="absolute z-50 mt-1 w-full max-h-60 overflow-y-auto bg-black border border-gray-600 rounded-lg shadow-lg">
                   {users.map((user) => (
-                    <div key={user.id} onClick={() => { setSelectedUser(user); setDropdownOpen(false); }} className="flex items-center gap-3 px-4 py-2 hover:bg-gray-800 cursor-pointer">
-                      <img src={user.profileImageUrl} alt="Profile" className="w-8 h-8 rounded-full object-cover"/>
-                      <div><div>{getUserDisplayName(user)}</div><div className="text-gray-400 text-sm">{user.email}</div></div>
+                    <div
+                      key={user.id}
+                      onClick={() => {
+                        setSelectedUser(user);
+                        setDropdownOpen(false);
+                      }}
+                      className="flex items-center gap-3 px-4 py-2 hover:bg-gray-800 cursor-pointer"
+                    >
+                      <img src={user.profileImageUrl} alt="Profile" className="w-8 h-8 rounded-full object-cover" />
+                      <div>
+                        <div>{getUserDisplayName(user)}</div>
+                        <div className="text-gray-400 text-sm">{user.email}</div>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -275,8 +311,18 @@ const Admin = () => {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4 mt-4">
-              <button onClick={() => promoteUser("driver")} className="bg-purple-500 hover:bg-purple-600 text-white font-semibold px-6 py-3 rounded-lg shadow-md transition-all duration-300">Make Driver</button>
-              <button onClick={() => promoteUser("admin")} className="bg-yellow-500 hover:bg-yellow-600 text-black font-semibold px-6 py-3 rounded-lg shadow-md transition-all duration-300">Make Admin</button>
+              <button
+                onClick={() => promoteUser("driver")}
+                className="bg-purple-500 hover:bg-purple-600 text-white font-semibold px-6 py-3 rounded-lg shadow-md transition-all duration-300"
+              >
+                Make Driver
+              </button>
+              <button
+                onClick={() => promoteUser("admin")}
+                className="bg-yellow-500 hover:bg-yellow-600 text-black font-semibold px-6 py-3 rounded-lg shadow-md transition-all duration-300"
+              >
+                Make Admin
+              </button>
             </div>
 
             {message && <p className="text-center text-yellow-400 font-medium mt-2">{message}</p>}
@@ -284,43 +330,69 @@ const Admin = () => {
 
           {/* User Tables */}
           <motion.div className="space-y-12 max-w-6xl mx-auto" variants={fadeIn("up")}>
-            <UserTable title="Users" users={regularUsers}/>
-            <UserTable title="Drivers" users={drivers} roleColor="purple" removeRole={removeRole}/>
-            <UserTable title="Admins" users={admins} roleColor="yellow" removeRole={removeRole}/>
+            <UserTable title="Users" users={regularUsers} />
+            <UserTable title="Drivers" users={drivers} roleColor="purple" removeRole={removeRole} />
+            <UserTable title="Admins" users={admins} roleColor="yellow" removeRole={removeRole} />
           </motion.div>
 
           {/* Timetable Management */}
-          <motion.div className="max-w-6xl mx-auto bg-white/10 backdrop-blur-sm p-8 rounded-3xl shadow-lg space-y-6 mt-16" variants={fadeIn("up")}>
+          <motion.div
+            className="max-w-6xl mx-auto bg-white/10 backdrop-blur-sm p-8 rounded-3xl shadow-lg space-y-6 mt-16"
+            variants={fadeIn("up")}
+          >
             <h2 className="text-2xl font-bold text-center text-purple-400">Timetable Management</h2>
 
             {/* Manual Add/Edit */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-              <input type="text" placeholder="Bus Number" value={busNumber} onChange={(e) => setBusNumber(e.target.value)} className="px-4 py-2 rounded-lg bg-gray-900 text-white"/>
-              <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="px-4 py-2 rounded-lg bg-gray-900 text-white"/>
-              <input type="time" value={time} onChange={(e) => setTime(e.target.value)} className="px-4 py-2 rounded-lg bg-gray-900 text-white"/>
-              <input type="text" placeholder="From" value={from} onChange={(e) => setFrom(e.target.value)} className="px-4 py-2 rounded-lg bg-gray-900 text-white"/>
-              <input type="text" placeholder="To" value={to} onChange={(e) => setTo(e.target.value)} className="px-4 py-2 rounded-lg bg-gray-900 text-white"/>
-              <input type="time" placeholder="Arrival" value={arrival} onChange={(e) => setArrival(e.target.value)} className="px-4 py-2 rounded-lg bg-gray-900 text-white"/>
-              <input type="number" placeholder="Rounds" value={rounds} onChange={(e) => setRounds(e.target.value)} min={1} className="px-4 py-2 rounded-lg bg-gray-900 text-white"/>
-              <button onClick={addOrUpdateTimetable} className="bg-purple-500 hover:bg-purple-600 px-6 py-2 rounded-lg font-semibold">{editId ? "Update" : "Add"}</button>
+              <input type="text" placeholder="Bus Number" value={busNumber} onChange={(e) => setBusNumber(e.target.value)} className="px-4 py-2 rounded-lg bg-gray-900 text-white" />
+              <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="px-4 py-2 rounded-lg bg-gray-900 text-white" />
+              <input type="time" value={time} onChange={(e) => setTime(e.target.value)} className="px-4 py-2 rounded-lg bg-gray-900 text-white" />
+              <input type="text" placeholder="From" value={from} onChange={(e) => setFrom(e.target.value)} className="px-4 py-2 rounded-lg bg-gray-900 text-white" />
+              <input type="text" placeholder="To" value={to} onChange={(e) => setTo(e.target.value)} className="px-4 py-2 rounded-lg bg-gray-900 text-white" />
+              <input type="time" placeholder="Arrival" value={arrival} onChange={(e) => setArrival(e.target.value)} className="px-4 py-2 rounded-lg bg-gray-900 text-white" />
+              <input type="number" placeholder="Rounds" value={rounds} onChange={(e) => setRounds(e.target.value)} min={1} className="px-4 py-2 rounded-lg bg-gray-900 text-white" />
+              <button onClick={addOrUpdateTimetable} className="bg-purple-500 hover:bg-purple-600 px-6 py-2 rounded-lg font-semibold">
+                {editId ? "Update" : "Add"}
+              </button>
             </div>
 
             {/* CSV Import */}
             <div>
               <label className="block text-gray-300 mb-2">Import Timetable (CSV with Bus Number, Date, Time, From, To, Arrival, Rounds)</label>
-              <input type="file" accept=".csv" onChange={handleFileUpload} className="block w-full text-sm text-gray-300"/>
+              <input type="file" accept=".csv" onChange={handleFileUpload} className="block w-full text-sm text-gray-300" />
+            </div>
+
+            {/* Timetable Search */}
+            <div className="relative w-full max-w-sm">
+              <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-neutral-50">
+                <FaSearch />
+              </span>
+              <input
+                type="text"
+                placeholder="Search by Bus Number..."
+                value={timetableSearch}
+                onChange={(e) => setTimetableSearch(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-600 bg-gray-900 text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+              />
             </div>
 
             {/* Timetable Table */}
-            <TimetableTable timetables={timetables} handleEdit={handleEdit} handleDelete={handleDelete}/>
+            <TimetableTable timetables={filteredTimetables} handleEdit={handleEdit} handleDelete={handleDelete} />
           </motion.div>
         </>
       )}
+      <motion.div
+        className="max-w-3xl mx-auto text-gray-400 text-sm text-center"
+        variants={fadeIn("up")}
+      >
+        ⚠️ Only admin users can access this page. Ensure you select the
+        correct user before promoting.
+      </motion.div>
     </div>
   );
 };
 
-// UserTable component remains unchanged
+// UserTable component
 const UserTable = ({ title, users, roleColor, removeRole }) => (
   <div className="bg-white/10 backdrop-blur-sm p-6 rounded-3xl shadow-lg overflow-x-auto">
     <h2 className="text-xl font-bold mb-4 text-white">{title}</h2>
@@ -337,22 +409,21 @@ const UserTable = ({ title, users, roleColor, removeRole }) => (
         {users.map((user) => (
           <tr key={user.id} className="hover:bg-gray-800">
             <td className="px-4 py-2">
-              <img src={user.profileImageUrl} alt="Profile" className="w-10 h-10 rounded-full object-cover"/>
+              <img src={user.profileImageUrl} alt="Profile" className="w-10 h-10 rounded-full object-cover" />
             </td>
             <td className="px-4 py-2">{user.fullName}</td>
-            <td className="px-4 py-2 text-gray-300 text-sm">{user.email}</td>
-            <td className="px-4 py-2 flex items-center gap-2">
-              {roleColor === "yellow" ? (
-                <span className="text-yellow-400 font-semibold">{user.role}</span>
-              ) : roleColor === "purple" ? (
-                <span className="text-purple-400 font-semibold">{user.role}</span>
-              ) : (
-                <span className="text-gray-300">{user.role}</span>
-              )}
-              {(roleColor === "yellow" || roleColor === "purple") && removeRole && (
-                <button onClick={() => removeRole(user.id)} className="ml-4 bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm">Remove Role</button>
-              )}
-            </td>
+            <td className="px-4 py-2">{user.email}</td>
+            <td className={`px-4 py-2 font-semibold text-${roleColor || "blue"}-400`}>{user.role}</td>
+            {removeRole && (
+              <td className="px-4 py-2">
+                <button
+                  onClick={() => removeRole(user.id)}
+                  className="bg-red-500 hover:bg-red-600 px-4 py-2 rounded-lg text-white text-sm"
+                >
+                  Remove Role
+                </button>
+              </td>
+            )}
           </tr>
         ))}
       </tbody>
@@ -360,45 +431,47 @@ const UserTable = ({ title, users, roleColor, removeRole }) => (
   </div>
 );
 
-// Timetable Table component with Edit/Delete buttons
+// TimetableTable component (with scrollable body)
 const TimetableTable = ({ timetables, handleEdit, handleDelete }) => (
-  <div className="bg-white/10 backdrop-blur-sm p-6 rounded-3xl shadow-lg overflow-x-auto mt-6">
+  <div className="bg-neutral-800 backdrop-blur-sm p-6 rounded-3xl shadow-lg overflow-x-auto">
     <h2 className="text-xl font-bold mb-4 text-white text-center">All Timetables</h2>
-    <table className="min-w-full border-collapse text-white">
-      <thead>
-        <tr>
-          <th className="border-b border-gray-600 px-4 py-2 text-left">Bus Number</th>
-          <th className="border-b border-gray-600 px-4 py-2 text-left">Date</th>
-          <th className="border-b border-gray-600 px-4 py-2 text-left">Departure</th>
-          <th className="border-b border-gray-600 px-4 py-2 text-left">From</th>
-          <th className="border-b border-gray-600 px-4 py-2 text-left">To</th>
-          <th className="border-b border-gray-600 px-4 py-2 text-left">Arrival</th>
-          <th className="border-b border-gray-600 px-4 py-2 text-left">Rounds</th>
-          <th className="border-b border-gray-600 px-4 py-2 text-left">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {timetables.map((t) => (
-          <tr key={t.id} className="hover:bg-gray-800">
-            <td className="px-4 py-2">{t.busNumber}</td>
-            <td className="px-4 py-2">{t.date}</td>
-            <td className="px-4 py-2">{t.departure}</td>
-            <td className="px-4 py-2">{t.from || "-"}</td>
-            <td className="px-4 py-2">{t.to || "-"}</td>
-            <td className="px-4 py-2">{t.arrival || "-"}</td>
-            <td className="px-4 py-2">{t.rounds || 1}</td>
-            <td className="px-4 py-2 flex gap-2">
-              <button onClick={() => handleEdit(t)} className="bg-yellow-400 hover:bg-yellow-500 text-black px-3 py-1 rounded-md flex items-center gap-1">
-                <FaEdit /> Edit
-              </button>
-              <button onClick={() => handleDelete(t._id)} className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md flex items-center gap-1">
-                <FaTrash /> Delete
-              </button>
-            </td>
+    <div className="max-h-96 overflow-y-auto">
+      <table className="min-w-full border-collapse text-white">
+        <thead>
+          <tr>
+            <th className="border-b border-gray-600 px-4 py-2 text-left">Bus No</th>
+            <th className="border-b border-gray-600 px-4 py-2 text-left">Date</th>
+            <th className="border-b border-gray-600 px-4 py-2 text-left">Departure</th>
+            <th className="border-b border-gray-600 px-4 py-2 text-left">From</th>
+            <th className="border-b border-gray-600 px-4 py-2 text-left">To</th>
+            <th className="border-b border-gray-600 px-4 py-2 text-left">Arrival</th>
+            <th className="border-b border-gray-600 px-4 py-2 text-left">Rounds</th>
+            <th className="border-b border-gray-600 px-4 py-2 text-left">Actions</th>
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {timetables.map((timetable) => (
+            <tr key={timetable._id} className="hover:bg-gray-800">
+              <td className="px-4 py-2">{timetable.busNumber}</td>
+              <td className="px-4 py-2">{timetable.date}</td>
+              <td className="px-4 py-2">{timetable.departure}</td>
+              <td className="px-4 py-2">{timetable.from}</td>
+              <td className="px-4 py-2">{timetable.to}</td>
+              <td className="px-4 py-2">{timetable.arrival}</td>
+              <td className="px-4 py-2">{timetable.rounds}</td>
+              <td className="px-4 py-2 flex gap-2">
+                <button onClick={() => handleEdit(timetable)} className="bg-yellow-400 hover:bg-yellow-500 text-black px-3 py-1 rounded-md flex items-center gap-1">
+                  <FaEdit />
+                </button>
+                <button onClick={() => handleDelete(timetable._id)} className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md flex items-center gap-1">
+                  <FaTrash />
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   </div>
 );
 
