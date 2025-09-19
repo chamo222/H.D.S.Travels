@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import usersRouter from "./routes/users.js";
+import timetableRouter from "./routes/timetable.js";
 
 dotenv.config();
 
@@ -28,6 +29,7 @@ app.get("/", (req, res) => {
 
 // API routes
 app.use("/api/users", usersRouter);
+app.use("/api/timetable", timetableRouter);
 
 // Start server (must bind to 0.0.0.0 on Fly.io)
 app.listen(PORT, "0.0.0.0", () => {
