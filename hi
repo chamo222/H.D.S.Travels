@@ -1,4 +1,6 @@
 https://server-spring-brook-4986.fly.dev/api/users
+https://server-spring-brook-4986.fly.dev/api/timetable
+https://fly.io/apps/server-spring-brook-4986/monitoring
 
  git add .
  git commit -m 'changes'
@@ -6,3 +8,16 @@ https://server-spring-brook-4986.fly.dev/api/users
 
 
  flyctl deploy
+ fly logs
+ fly secrets list
+
+ Username
+hdcservers_db_user
+Password
+H.D.C.Servers
+
+{*/ Localhost */}
+http://localhost:8080/api/timetable
+
+{*/ Hosted */}
+https://server-spring-brook-4986.fly.dev

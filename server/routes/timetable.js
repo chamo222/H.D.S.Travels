@@ -1,129 +1,68 @@
-// server/routes/timetable.js
 import express from "express";
-import fs from "fs";
-import path from "path";
-import { randomUUID } from "crypto";
+import Timetable from "../models/Timetable.js";
 
 const router = express.Router();
-const DATA_DIR = path.join(process.cwd(), "data");
-const TIMETABLE_FILE = path.join(DATA_DIR, "timetable.json");
 
-// ensure data dir exists
-if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
-if (!fs.existsSync(TIMETABLE_FILE)) fs.writeFileSync(TIMETABLE_FILE, "[]", "utf8");
-
-const readFile = () => {
+// GET all timetables
+router.get("/", async (req, res) => {
   try {
-    const raw = fs.readFileSync(TIMETABLE_FILE, "utf8");
-    return JSON.parse(raw || "[]");
+    const timetables = await Timetable.find().sort({ departure: 1 });
+    res.json(timetables);
   } catch (err) {
-    console.error("Read timetable error:", err);
-    return [];
+    console.error("Error fetching timetables:", err);
+    res.status(500).json({ error: "Failed to fetch timetables", details: err.message });
   }
-};
+});
 
-const writeFile = (arr) => {
+// GET timetable by date
+router.get("/date/:date", async (req, res) => {
   try {
-    fs.writeFileSync(TIMETABLE_FILE, JSON.stringify(arr, null, 2), "utf8");
+    const timetables = await Timetable.find({ date: req.params.date }).sort({ departure: 1 });
+    res.json(timetables);
   } catch (err) {
-    console.error("Write timetable error:", err);
+    console.error("Error fetching timetables by date:", err);
+    res.status(500).json({ error: "Failed to fetch timetables", details: err.message });
   }
-};
-
-// GET all timetable
-router.get("/", (req, res) => {
-  const items = readFile();
-  res.json(items);
 });
 
-// GET timetable by date (optional query param)
-router.get("/date/:date", (req, res) => {
-  const { date } = req.params;
-  const items = readFile().filter((i) => i.date === date);
-  res.json(items);
-});
+// POST new timetable
+router.post("/", async (req, res) => {
+  try {
+    const { busNumber, date, departure, from, to, arrival, rounds } = req.body;
+    if (!busNumber || !date || !departure)
+      return res.status(400).json({ error: "Missing required fields" });
 
-// POST single timetable entry
-router.post("/", (req, res) => {
-  const { date, busNumber, from, to, departure, arrival = "", rounds = 1 } = req.body;
-  if (!date || !busNumber || !departure) {
-    return res.status(400).json({ error: "Missing required fields (date, busNumber, departure)" });
+    const entry = new Timetable({ busNumber, date, departure, from, to, arrival, rounds });
+    await entry.save();
+    res.json({ message: "Timetable added", entry });
+  } catch (err) {
+    console.error("Error adding timetable:", err);
+    res.status(500).json({ error: "Failed to add timetable", details: err.message });
   }
-  const items = readFile();
-  const newItem = {
-    id: randomUUID(),
-    date,
-    busNumber,
-    from: from || "",
-    to: to || "",
-    departure,
-    arrival: arrival || "",
-    rounds: Number(rounds) || 1,
-    createdAt: new Date().toISOString(),
-  };
-  items.push(newItem);
-  writeFile(items);
-  res.json({ message: "Timetable entry added", entry: newItem });
 });
 
-// PUT update timetable entry by id
-router.put("/:id", (req, res) => {
-  const { id } = req.params;
-  const { date, busNumber, from, to, departure, arrival, rounds } = req.body;
-
-  let items = readFile();
-  const index = items.findIndex((i) => i.id === id);
-  if (index === -1) return res.status(404).json({ error: "Timetable entry not found" });
-
-  // Update fields if provided
-  if (date) items[index].date = date;
-  if (busNumber) items[index].busNumber = busNumber;
-  if (from !== undefined) items[index].from = from;
-  if (to !== undefined) items[index].to = to;
-  if (departure) items[index].departure = departure;
-  if (arrival !== undefined) items[index].arrival = arrival;
-  if (rounds) items[index].rounds = Number(rounds);
-
-  items[index].updatedAt = new Date().toISOString();
-
-  writeFile(items);
-  res.json({ message: "Timetable entry updated", entry: items[index] });
-});
-
-// POST import multiple entries
-router.post("/import", (req, res) => {
-  const { entries } = req.body;
-  if (!Array.isArray(entries)) {
-    return res.status(400).json({ error: "Invalid payload; expected entries array" });
+// PUT update timetable
+router.put("/:id", async (req, res) => {
+  try {
+    const entry = await Timetable.findByIdAndUpdate(req.params.id, { ...req.body, updatedAt: new Date() }, { new: true });
+    if (!entry) return res.status(404).json({ error: "Timetable not found" });
+    res.json({ message: "Timetable updated", entry });
+  } catch (err) {
+    console.error("Error updating timetable:", err);
+    res.status(500).json({ error: "Failed to update timetable", details: err.message });
   }
-  const items = readFile();
-  const added = entries.map((e) => {
-    const item = {
-      id: randomUUID(),
-      date: e.date || "",
-      busNumber: e.busNumber || "",
-      from: e.from || "",
-      to: e.to || "",
-      departure: e.departure || "",
-      arrival: e.arrival || "",
-      rounds: Number(e.rounds) || 1,
-      createdAt: new Date().toISOString(),
-    };
-    items.push(item);
-    return item;
-  });
-  writeFile(items);
-  res.json({ message: `Imported ${added.length} entries`, added });
 });
 
-// DELETE entry
-router.delete("/:id", (req, res) => {
-  const id = req.params.id;
-  let items = readFile();
-  const before = items.length;
-  items = items.filter((i) => i.id !== id);
-  writeFile(items);
-  res.json({ message: `Deleted ${before - items.length} entries` });
+// DELETE timetable
+router.delete("/:id", async (req, res) => {
+  try {
+    const entry = await Timetable.findByIdAndDelete(req.params.id);
+    if (!entry) return res.status(404).json({ error: "Timetable not found" });
+    res.json({ message: "Timetable deleted" });
+  } catch (err) {
+    console.error("Error deleting timetable:", err);
+    res.status(500).json({ error: "Failed to delete timetable", details: err.message });
+  }
 });
 
 export default router;
