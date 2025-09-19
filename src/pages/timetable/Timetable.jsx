@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { FaBus } from "react-icons/fa";
 
 // Backend URL from env
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
@@ -18,8 +19,9 @@ const Timetable = () => {
 
   // Fetch all timetables and filter by date
   const fetchTimetables = async () => {
+    setLoading(true);
+    const start = Date.now(); // track start time
     try {
-      setLoading(true);
       const res = await fetch(`${BACKEND_URL}/api/timetable`);
       const data = await res.json();
 
@@ -30,13 +32,15 @@ const Timetable = () => {
 
       // Sort by departure time
       filtered.sort((a, b) => a.departure.localeCompare(b.departure));
-
       setTimetables(filtered);
     } catch (err) {
       console.error("Failed to fetch timetables:", err);
       setTimetables([]);
     } finally {
-      setLoading(false);
+      // Ensure loading shows for at least 4 seconds
+      const elapsed = Date.now() - start;
+      const remaining = 1000 - elapsed;
+      setTimeout(() => setLoading(false), remaining > 0 ? remaining : 0);
     }
   };
 
@@ -81,9 +85,15 @@ const Timetable = () => {
         variants={fadeIn("up")}
       >
         {loading ? (
-          <p className="text-center text-gray-400 col-span-full mt-10">
-            Loading buses...
-          </p>
+          <div className="col-span-full flex flex-col items-center justify-center mt-10 space-y-4">
+            <motion.div
+              className="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full"
+              animate={{ rotate: 360 }}
+              transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+            />
+            <FaBus className="text-purple-400 text-5xl animate-bounce" />
+            <p className="text-gray-400 mt-2">Loading Bus Timetables...</p>
+          </div>
         ) : timetables.length > 0 ? (
           timetables.map((entry, index) => (
             <motion.div
