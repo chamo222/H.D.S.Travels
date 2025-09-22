@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { FaBus } from "react-icons/fa";
+import { FiCheckCircle, FiXCircle } from "react-icons/fi";
 
 const fadeIn = (direction = "up") => ({
   hidden: { opacity: 0, y: direction === "up" ? 50 : -50 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } },
 });
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL; // Make sure to set this in your .env
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 const ApiLinksManager = () => {
   const [apiLinks, setApiLinks] = useState([]);
@@ -14,8 +16,10 @@ const ApiLinksManager = () => {
   const [url, setUrl] = useState("");
   const [editIndex, setEditIndex] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState(""); // Pop-up text
+  const [showMessage, setShowMessage] = useState(false); // Show/hide pop-up
+  const [success, setSuccess] = useState(true); // Success or error type
 
-  // Fetch API links from backend
   const fetchLinks = async () => {
     setLoading(true);
     try {
@@ -33,8 +37,15 @@ const ApiLinksManager = () => {
     fetchLinks();
   }, []);
 
+  const showPopupMessage = (text, type = true) => {
+    setMessage(text);
+    setSuccess(type);
+    setShowMessage(true);
+    setTimeout(() => setShowMessage(false), 3000);
+  };
+
   const handleAddOrEdit = async () => {
-    if (!name || !url) return alert("Please fill in both fields");
+    if (!name || !url) return showPopupMessage("Please fill in both fields", false);
     setLoading(true);
 
     try {
@@ -46,18 +57,21 @@ const ApiLinksManager = () => {
           body: JSON.stringify({ name, url }),
         });
         setEditIndex(null);
+        showPopupMessage("Link updated successfully!");
       } else {
         await fetch(`${BACKEND_URL}/api/apilinks`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ name, url }),
         });
+        showPopupMessage("Link added successfully!");
       }
       await fetchLinks();
       setName("");
       setUrl("");
     } catch (err) {
       console.error("Error saving API link:", err);
+      showPopupMessage("Failed to save link.", false);
     } finally {
       setLoading(false);
     }
@@ -69,8 +83,10 @@ const ApiLinksManager = () => {
     try {
       await fetch(`${BACKEND_URL}/api/apilinks/${id}`, { method: "DELETE" });
       await fetchLinks();
+      showPopupMessage("Link deleted successfully!");
     } catch (err) {
       console.error("Error deleting API link:", err);
+      showPopupMessage("Failed to delete link.", false);
     } finally {
       setLoading(false);
     }
@@ -82,8 +98,62 @@ const ApiLinksManager = () => {
     setEditIndex(index);
   };
 
+  // Loading screen when fetching links
+  if (loading && apiLinks.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-black text-white space-y-6">
+        <motion.div
+          className="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"
+          transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+        />
+        <FaBus className="text-purple-400 text-5xl animate-bounce" />
+        <p className="text-gray-300 mt-2">Loading, H.D.S.Travels API Panel...</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-black text-white px-6 py-16 space-y-12">
+    <div className="min-h-screen bg-black text-white px-6 py-16 space-y-12 relative">
+      {/* Fancy Centered Pop-up */}
+      <AnimatePresence>
+        {showMessage && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.5, y: -50 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.5, y: -50 }}
+            transition={{ type: "spring", stiffness: 500, damping: 30 }}
+            className="fixed inset-0 flex items-center justify-center z-50"
+          >
+            <div
+              className={`flex items-center gap-3 px-6 py-4 rounded-2xl shadow-xl text-lg ${
+                success ? "bg-green-600 text-white" : "bg-red-600 text-white"
+              }`}
+            >
+              {success ? (
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  exit={{ scale: 0 }}
+                  transition={{ type: "spring", stiffness: 500, damping: 20 }}
+                >
+                  <FiCheckCircle size={24} />
+                </motion.div>
+              ) : (
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  exit={{ scale: 0 }}
+                  transition={{ type: "spring", stiffness: 500, damping: 20 }}
+                >
+                  <FiXCircle size={24} />
+                </motion.div>
+              )}
+              <span>{message}</span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Page Header */}
       <motion.div
         className="relative max-w-[90%] mx-auto mt-20"
@@ -128,11 +198,7 @@ const ApiLinksManager = () => {
           disabled={loading}
           className="w-full bg-purple-500 hover:bg-purple-600 disabled:bg-gray-600 text-white font-semibold px-4 py-3 rounded-lg shadow-md transition-all duration-300"
         >
-          {loading
-            ? "Saving..."
-            : editIndex !== null
-            ? "Update Link"
-            : "Add Link"}
+          {loading ? "Saving..." : editIndex !== null ? "Update Link" : "Add Link"}
         </button>
       </motion.div>
 
@@ -144,9 +210,7 @@ const ApiLinksManager = () => {
         animate="visible"
       >
         <h2 className="text-xl font-bold text-purple-400">Saved API Links</h2>
-        {loading ? (
-          <p className="text-gray-400 animate-pulse">Loading links...</p>
-        ) : apiLinks.length === 0 ? (
+        {apiLinks.length === 0 ? (
           <p className="text-gray-400 text-sm">No API links saved yet.</p>
         ) : (
           <ul className="space-y-3">
