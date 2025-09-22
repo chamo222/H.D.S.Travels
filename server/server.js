@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 import usersRouter from "./routes/users.js";
 import apilinksRouter from "./routes/apilinks.js";
 import timetableRouter from "./routes/timetable.js";
+import ticketsRouter from "./routes/tickets.js"; // ✅ New Tickets Router
 import { requireAuth } from "@clerk/clerk-sdk-node";
 
 dotenv.config();
@@ -34,8 +35,9 @@ app.get("/api/user", requireAuth, (req, res) => {
 
 // API routes
 app.use("/api/users", usersRouter);
-app.use("/api/apilinks", apilinksRouter); // ✅ Add this line
+app.use("/api/apilinks", apilinksRouter);
 app.use("/api/timetable", timetableRouter);
+app.use("/api/tickets", ticketsRouter); // ✅ Tickets route
 
 // Start server
 app.listen(PORT, "0.0.0.0", () => console.log(`✅ Server running on port ${PORT}`));

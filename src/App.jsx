@@ -13,7 +13,6 @@ import Checkout from './pages/ticket/checkout/Checkout';
 import Invoice from './pages/ticket/invoice/Invoice';
 import Timetable from './pages/timetable/Timetable';
 import Admin from './pages/admin/Admin';
-import APi from './components/apilinksmanager/ApiLinksManager'
 import ApiLinksManager from './components/apilinksmanager/ApiLinksManager';
 
 const App = () => {

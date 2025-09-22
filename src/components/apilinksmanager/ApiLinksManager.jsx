@@ -11,32 +11,53 @@ const fadeIn = (direction = "up") => ({
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 const ApiLinksManager = () => {
+  // API LINKS STATES
   const [apiLinks, setApiLinks] = useState([]);
   const [name, setName] = useState("");
   const [url, setUrl] = useState("");
   const [editIndex, setEditIndex] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState(""); // Pop-up text
-  const [showMessage, setShowMessage] = useState(false); // Show/hide pop-up
-  const [success, setSuccess] = useState(true); // Success or error type
 
+  // TICKETS STATES
+  const [tickets, setTickets] = useState([]);
+  const [title, setTitle] = useState("");
+  const [price, setPrice] = useState("");
+  const [date, setDate] = useState("");
+  const [ticketEditIndex, setTicketEditIndex] = useState(null);
+
+  // COMMON STATES
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+  const [showMessage, setShowMessage] = useState(false);
+  const [success, setSuccess] = useState(true);
+
+  // 🔹 Fetch API Links
   const fetchLinks = async () => {
-    setLoading(true);
     try {
       const res = await fetch(`${BACKEND_URL}/api/apilinks`);
       const data = await res.json();
       setApiLinks(data);
     } catch (err) {
       console.error("Failed to fetch API links:", err);
-    } finally {
-      setLoading(false);
+    }
+  };
+
+  // 🔹 Fetch Tickets
+  const fetchTickets = async () => {
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/tickets`);
+      const data = await res.json();
+      setTickets(data);
+    } catch (err) {
+      console.error("Failed to fetch tickets:", err);
     }
   };
 
   useEffect(() => {
     fetchLinks();
+    fetchTickets();
   }, []);
 
+  // Popup
   const showPopupMessage = (text, type = true) => {
     setMessage(text);
     setSuccess(type);
@@ -44,6 +65,7 @@ const ApiLinksManager = () => {
     setTimeout(() => setShowMessage(false), 3000);
   };
 
+  // 🔹 Handle Add/Edit API Link
   const handleAddOrEdit = async () => {
     if (!name || !url) return showPopupMessage("Please fill in both fields", false);
     setLoading(true);
@@ -79,7 +101,6 @@ const ApiLinksManager = () => {
 
   const handleDelete = async (index) => {
     const id = apiLinks[index]._id;
-    setLoading(true);
     try {
       await fetch(`${BACKEND_URL}/api/apilinks/${id}`, { method: "DELETE" });
       await fetchLinks();
@@ -87,8 +108,6 @@ const ApiLinksManager = () => {
     } catch (err) {
       console.error("Error deleting API link:", err);
       showPopupMessage("Failed to delete link.", false);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -98,23 +117,63 @@ const ApiLinksManager = () => {
     setEditIndex(index);
   };
 
-  // Loading screen when fetching links
-  if (loading && apiLinks.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-black text-white space-y-6">
-        <motion.div
-          className="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"
-          transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-        />
-        <FaBus className="text-purple-400 text-5xl animate-bounce" />
-        <p className="text-gray-300 mt-2">Loading, H.D.S.Travels API Panel...</p>
-      </div>
-    );
-  }
+  // 🔹 Handle Add/Edit Ticket
+  const handleAddOrEditTicket = async () => {
+    if (!title || !price || !date) return showPopupMessage("Fill all ticket fields", false);
+    setLoading(true);
+
+    try {
+      if (ticketEditIndex !== null) {
+        const id = tickets[ticketEditIndex]._id;
+        await fetch(`${BACKEND_URL}/api/tickets/${id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ title, price, date }),
+        });
+        setTicketEditIndex(null);
+        showPopupMessage("Ticket updated successfully!");
+      } else {
+        await fetch(`${BACKEND_URL}/api/tickets`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ title, price, date }),
+        });
+        showPopupMessage("Ticket added successfully!");
+      }
+      await fetchTickets();
+      setTitle("");
+      setPrice("");
+      setDate("");
+    } catch (err) {
+      console.error("Error saving ticket:", err);
+      showPopupMessage("Failed to save ticket.", false);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteTicket = async (index) => {
+    const id = tickets[index]._id;
+    try {
+      await fetch(`${BACKEND_URL}/api/tickets/${id}`, { method: "DELETE" });
+      await fetchTickets();
+      showPopupMessage("Ticket deleted successfully!");
+    } catch (err) {
+      console.error("Error deleting ticket:", err);
+      showPopupMessage("Failed to delete ticket.", false);
+    }
+  };
+
+  const handleEditTicket = (index) => {
+    setTitle(tickets[index].title);
+    setPrice(tickets[index].price);
+    setDate(tickets[index].date);
+    setTicketEditIndex(index);
+  };
 
   return (
     <div className="min-h-screen bg-black text-white px-6 py-16 space-y-12 relative">
-      {/* Fancy Centered Pop-up */}
+      {/* Popup */}
       <AnimatePresence>
         {showMessage && (
           <motion.div
@@ -129,25 +188,7 @@ const ApiLinksManager = () => {
                 success ? "bg-green-600 text-white" : "bg-red-600 text-white"
               }`}
             >
-              {success ? (
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  exit={{ scale: 0 }}
-                  transition={{ type: "spring", stiffness: 500, damping: 20 }}
-                >
-                  <FiCheckCircle size={24} />
-                </motion.div>
-              ) : (
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  exit={{ scale: 0 }}
-                  transition={{ type: "spring", stiffness: 500, damping: 20 }}
-                >
-                  <FiXCircle size={24} />
-                </motion.div>
-              )}
+              {success ? <FiCheckCircle size={24} /> : <FiXCircle size={24} />}
               <span>{message}</span>
             </div>
           </motion.div>
@@ -164,90 +205,145 @@ const ApiLinksManager = () => {
         <div className="rounded-3xl p-[3px] md:p-[4px] bg-gradient-to-r from-purple-400 via-pink-500 to-yellow-500 animate-gradient-border">
           <div className="bg-black rounded-3xl px-6 py-4 md:py-6 shadow-md text-center">
             <h1 className="text-2xl sm:text-4xl md:text-5xl font-extrabold text-white">
-              H.D.S.Travels: API Panel
+              H.D.S.Travels: Admin Panel
             </h1>
           </div>
         </div>
       </motion.div>
 
-      {/* Form Section */}
+      {/* ---------- API LINKS SECTION ---------- */}
       <motion.div
         className="max-w-3xl mx-auto bg-white/10 backdrop-blur-sm p-8 rounded-3xl shadow-lg space-y-6"
         variants={fadeIn("up")}
         initial="hidden"
         animate="visible"
       >
+        <h2 className="text-xl font-bold text-purple-400">Manage API Links</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <input
             type="text"
             placeholder="API Name"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="px-4 py-3 rounded-lg bg-gray-900 text-white placeholder-gray-400 focus:ring-2 focus:ring-purple-500"
+            className="px-4 py-3 rounded-lg bg-gray-900 text-white"
           />
           <input
             type="text"
             placeholder="API URL"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
-            className="px-4 py-3 rounded-lg bg-gray-900 text-white placeholder-gray-400 focus:ring-2 focus:ring-purple-500"
+            className="px-4 py-3 rounded-lg bg-gray-900 text-white"
           />
         </div>
         <button
           onClick={handleAddOrEdit}
-          disabled={loading}
-          className="w-full bg-purple-500 hover:bg-purple-600 disabled:bg-gray-600 text-white font-semibold px-4 py-3 rounded-lg shadow-md transition-all duration-300"
+          className="w-full bg-purple-500 hover:bg-purple-600 text-white font-semibold px-4 py-3 rounded-lg shadow-md"
         >
-          {loading ? "Saving..." : editIndex !== null ? "Update Link" : "Add Link"}
+          {editIndex !== null ? "Update Link" : "Add Link"}
         </button>
+
+        <ul className="space-y-3">
+          {apiLinks.map((link, index) => (
+            <li
+              key={link._id}
+              className="flex justify-between items-center bg-gray-800 px-4 py-3 rounded-lg"
+            >
+              <div>
+                <p className="font-medium">{link.name}</p>
+                <a
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-purple-400 hover:underline text-sm break-all"
+                >
+                  {link.url}
+                </a>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => handleEdit(index)}
+                  className="bg-yellow-500 hover:bg-yellow-600 text-black px-3 py-1 rounded-md text-sm"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => handleDelete(index)}
+                  className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm"
+                >
+                  Delete
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
       </motion.div>
 
-      {/* List Section */}
+      {/* ---------- TICKETS SECTION ---------- */}
       <motion.div
-        className="max-w-3xl mx-auto bg-white/10 backdrop-blur-sm p-8 rounded-3xl shadow-lg space-y-4"
+        className="max-w-3xl mx-auto bg-white/10 backdrop-blur-sm p-8 rounded-3xl shadow-lg space-y-6"
         variants={fadeIn("up")}
         initial="hidden"
         animate="visible"
       >
-        <h2 className="text-xl font-bold text-purple-400">Saved API Links</h2>
-        {apiLinks.length === 0 ? (
-          <p className="text-gray-400 text-sm">No API links saved yet.</p>
-        ) : (
-          <ul className="space-y-3">
-            {apiLinks.map((link, index) => (
-              <li
-                key={link._id}
-                className="flex flex-col sm:flex-row sm:justify-between sm:items-center bg-gray-800 px-4 py-3 rounded-lg gap-3"
-              >
-                <div>
-                  <p className="font-medium">{link.name}</p>
-                  <a
-                    href={link.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-purple-400 hover:underline text-sm break-all"
-                  >
-                    {link.url}
-                  </a>
-                </div>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => handleEdit(index)}
-                    className="bg-yellow-500 hover:bg-yellow-600 text-black px-3 py-1 rounded-md text-sm"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(index)}
-                    className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
+        <h2 className="text-xl font-bold text-yellow-400">Manage Tickets</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <input
+            type="text"
+            placeholder="Ticket Title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className="px-4 py-3 rounded-lg bg-gray-900 text-white"
+          />
+          <input
+            type="number"
+            placeholder="Price"
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+            className="px-4 py-3 rounded-lg bg-gray-900 text-white"
+          />
+          <input
+            type="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            className="px-4 py-3 rounded-lg bg-gray-900 text-white"
+          />
+        </div>
+        <button
+          onClick={handleAddOrEditTicket}
+          className="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-semibold px-4 py-3 rounded-lg shadow-md"
+        >
+          {ticketEditIndex !== null ? "Update Ticket" : "Add Ticket"}
+        </button>
+
+        <ul className="space-y-3">
+          {tickets.map((ticket, index) => (
+            <li
+              key={ticket._id}
+              className="flex justify-between items-center bg-gray-800 px-4 py-3 rounded-lg"
+            >
+              <div>
+                <p className="font-medium">{ticket.title}</p>
+                <p className="text-sm text-gray-400">
+                  Rs.{ticket.price} | {new Date(ticket.date).toLocaleDateString()}
+                </p>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => handleEditTicket(index)}
+                  className="bg-yellow-500 hover:bg-yellow-600 text-black px-3 py-1 rounded-md text-sm"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => handleDeleteTicket(index)}
+                  className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm"
+                >
+                  Delete
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
       </motion.div>
     </div>
   );

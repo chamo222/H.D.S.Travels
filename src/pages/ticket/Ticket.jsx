@@ -1,11 +1,12 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import TopLayout from '../../layout/toppage/TopLayout'
 import RootLayout from '../../layout/RootLayout'
+import { motion } from 'framer-motion'
+import Search from '../home/hero/search/Search'
+import Filter from './filter/Filter'
+import SearchResult from './searchresult/SearchResult'
 
-import { motion } from 'framer-motion';
-import Search from '../home/hero/search/Search';
-import Filter from './filter/Filter';
-import SearchResult from './searchresult/SearchResult';
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL; // Make sure this is set
 
 const fadeIn = (direction = "up") => ({
   hidden: { opacity: 0, y: direction === "up" ? 50 : -50 },
@@ -13,6 +14,27 @@ const fadeIn = (direction = "up") => ({
 });
 
 function Ticket() {
+  const [tickets, setTickets] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  // Fetch tickets from admin panel API
+  const fetchTickets = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/tickets`);
+      const data = await res.json();
+      setTickets(data);
+    } catch (err) {
+      console.error("Failed to fetch tickets:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchTickets();
+  }, []);
+
   return (
     <div className='w-full bg-black text-white min-h-screen space-y-12 pb-16'>
       {/* Top Layout */}
@@ -24,7 +46,7 @@ function Ticket() {
 
       <RootLayout className="space-y-12 relative">
 
-        {/* Search section (gradient heading added) */}
+        {/* Search section */}
         <div className="space-y-5 w-full bg-black flex py-4 items-center justify-center flex-col sticky top-0 z-30">
           <motion.h1
             initial={{ opacity: 0, y: -800 }}
@@ -36,8 +58,8 @@ function Ticket() {
             Want to change the route?
           </motion.h1>
 
-          {/* Search */}
-          <Search theme="dark" />
+          {/* ✅ Pass setTickets so Search can update results */}
+          <Search theme="dark" setSearchResults={setTickets} />
         </div>
 
         {/* Tickets Section */}
@@ -52,12 +74,12 @@ function Ticket() {
             <Filter className="space-y-4 sticky top-52 z-20 bg-neutral-900/70 p-4 rounded-3xl shadow-lg border border-gradient-to-r from-purple-400 via-pink-500 to-yellow-500" />
           </div>
 
-          {/* Search Results */}
-          <div className="col-span-3 space-y-6 md:space-y-8">
-            <div className="space-y-4">
-              <SearchResult theme="dark" cardResponsive={true} />
-            </div>
-          </div>
+          {/* Search Results → tickets + loading + refresh */}
+          <SearchResult
+            tickets={tickets}
+            loading={loading}
+            onRefresh={fetchTickets}
+          />
         </motion.div>
 
       </RootLayout>
@@ -65,4 +87,4 @@ function Ticket() {
   )
 }
 
-export default Ticket
+export default Ticket;
