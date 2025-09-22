@@ -21,3 +21,8 @@ http://localhost:8080/api/timetable
 
 {*/ Hosted */}
 https://server-spring-brook-4986.fly.dev
+
+
+gps links
+
+https://wifi.miwitrack.com:9505/api/v1/Geo/ReverseGeoCode?key=9KD84JGH382JF1O&lat=7.00615&lng=79.97593

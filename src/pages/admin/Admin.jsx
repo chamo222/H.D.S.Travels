@@ -243,7 +243,7 @@ const Admin = () => {
           <motion.div className="relative max-w-[90%] mx-auto mt-20" variants={fadeIn("up")} initial="hidden" whileInView="visible">
             <div className="rounded-3xl p-[3px] md:p-[4px] bg-gradient-to-r from-purple-400 via-pink-500 to-yellow-500 animate-gradient-border">
               <div className="bg-black rounded-3xl px-6 py-4 md:py-6 shadow-md text-center">
-                <h1 className="text-2xl sm:text-4xl md:text-5xl font-extrabold text-white">Admin Panel: Promote Users</h1>
+                <h1 className="text-2xl sm:text-4xl md:text-5xl font-extrabold text-white">H.D.S.Travels: Admin Panel</h1>
               </div>
             </div>
           </motion.div>
