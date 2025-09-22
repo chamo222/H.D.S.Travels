@@ -32,23 +32,29 @@ const ApiLinksManager = () => {
 
   // 🔹 Fetch API Links
   const fetchLinks = async () => {
+    setLoading(true);
     try {
       const res = await fetch(`${BACKEND_URL}/api/apilinks`);
       const data = await res.json();
       setApiLinks(data);
     } catch (err) {
       console.error("Failed to fetch API links:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
   // 🔹 Fetch Tickets
   const fetchTickets = async () => {
+    setLoading(true);
     try {
       const res = await fetch(`${BACKEND_URL}/api/tickets`);
       const data = await res.json();
       setTickets(data);
     } catch (err) {
       console.error("Failed to fetch tickets:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -101,6 +107,7 @@ const ApiLinksManager = () => {
 
   const handleDelete = async (index) => {
     const id = apiLinks[index]._id;
+    setLoading(true);
     try {
       await fetch(`${BACKEND_URL}/api/apilinks/${id}`, { method: "DELETE" });
       await fetchLinks();
@@ -108,6 +115,8 @@ const ApiLinksManager = () => {
     } catch (err) {
       console.error("Error deleting API link:", err);
       showPopupMessage("Failed to delete link.", false);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -154,6 +163,7 @@ const ApiLinksManager = () => {
 
   const handleDeleteTicket = async (index) => {
     const id = tickets[index]._id;
+    setLoading(true);
     try {
       await fetch(`${BACKEND_URL}/api/tickets/${id}`, { method: "DELETE" });
       await fetchTickets();
@@ -161,6 +171,8 @@ const ApiLinksManager = () => {
     } catch (err) {
       console.error("Error deleting ticket:", err);
       showPopupMessage("Failed to delete ticket.", false);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -173,7 +185,31 @@ const ApiLinksManager = () => {
 
   return (
     <div className="min-h-screen bg-black text-white px-6 py-16 space-y-12 relative">
-      {/* Popup */}
+      {/* 🔹 Loading Overlay */}
+      <AnimatePresence>
+        {loading && (
+          <motion.div
+            className="fixed inset-0 bg-black/70 flex flex-col items-center justify-center z-50"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            {/* Spinner Circle */}
+            <motion.div
+              className="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"
+              transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+            />
+            
+            {/* Bouncing Bus Icon */}
+            <FaBus className="text-purple-400 text-6xl animate-bounce mt-6" />
+            
+            {/* Text */}
+            <p className="mt-4 text-lg text-purple-300">Loading, H.D.S.Travels API...</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* 🔹 Popup Messages */}
       <AnimatePresence>
         {showMessage && (
           <motion.div
@@ -195,7 +231,7 @@ const ApiLinksManager = () => {
         )}
       </AnimatePresence>
 
-      {/* Page Header */}
+      {/* HEADER */}
       <motion.div
         className="relative max-w-[90%] mx-auto mt-20"
         variants={fadeIn("up")}
@@ -211,7 +247,7 @@ const ApiLinksManager = () => {
         </div>
       </motion.div>
 
-      {/* ---------- API LINKS SECTION ---------- */}
+      {/* API LINKS SECTION */}
       <motion.div
         className="max-w-3xl mx-auto bg-white/10 backdrop-blur-sm p-8 rounded-3xl shadow-lg space-y-6"
         variants={fadeIn("up")}
@@ -278,7 +314,7 @@ const ApiLinksManager = () => {
         </ul>
       </motion.div>
 
-      {/* ---------- TICKETS SECTION ---------- */}
+      {/* TICKETS SECTION */}
       <motion.div
         className="max-w-3xl mx-auto bg-white/10 backdrop-blur-sm p-8 rounded-3xl shadow-lg space-y-6"
         variants={fadeIn("up")}
