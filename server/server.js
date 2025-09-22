@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 import usersRouter from "./routes/users.js";
+import apilinksRouter from "./routes/apilinks.js";
 import timetableRouter from "./routes/timetable.js";
 import { requireAuth } from "@clerk/clerk-sdk-node";
 
@@ -33,6 +34,7 @@ app.get("/api/user", requireAuth, (req, res) => {
 
 // API routes
 app.use("/api/users", usersRouter);
+app.use("/api/apilinks", apilinksRouter); // ✅ Add this line
 app.use("/api/timetable", timetableRouter);
 
 // Start server

@@ -9,7 +9,7 @@ import {
   FaInfoCircle,
   FaHandsHelping,
 } from "react-icons/fa";
-import { MdAdminPanelSettings, MdPhotoLibrary } from "react-icons/md";
+import { MdAdminPanelSettings, MdApi, MdPhotoLibrary } from "react-icons/md";
 import { Link, useNavigate } from "react-router-dom";
 import { useUser, UserButton } from "@clerk/clerk-react";
 
@@ -38,6 +38,7 @@ const Navbar = () => {
       // Admin-only items
       ...(role === "admin" ? [
         { label: "Admin ", link: "/AdminPanel", icon: <MdAdminPanelSettings /> },
+        { label: "API", link: "/api", icon: <MdApi /> }, // admins can see the Api Links 
         { label: "Timetable", link: "/timetable", icon: <FaBus /> }, // admins can see timetable too
       ] : []),
     ];
